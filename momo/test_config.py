@@ -1,5 +1,5 @@
 import pytest
-from config import Config, parse_config
+from config import Config, parse_config, read_config_file
 
 
 def write_config(tmp_path, content: str) -> str:
@@ -115,3 +115,17 @@ def test_empty_output_file_raises(tmp_path):
     path = write_config(tmp_path, content)
     with pytest.raises(ValueError, match="OUTPUT_FILE cannot be empty"):
         parse_config(path)
+
+def test_read_config_file_ignores_comments(tmp_path):
+    content = """\
+# これはコメント
+WIDTH=10
+# もう一つコメント
+HEIGHT=10
+"""
+    file_path = tmp_path / "config.txt"
+    file_path.write_text(content)
+
+    result = read_config_file(str(file_path))
+
+    assert result == {"WIDTH": "10", "HEIGHT": "10"}
