@@ -53,9 +53,9 @@ class MazeGenerator:
             perfect: bool = False,
             seed: int | None = None,
             ) -> None:
-    """
+        """
         迷路を作るクラス
-    """
+        """
         self.width = width
         self.height = height
         self.entry = entry
