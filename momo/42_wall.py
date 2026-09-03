@@ -18,6 +18,8 @@ def fits_in_maze(start_x: int, start_y: int, width: int, height: int) -> bool:
 
 def in_bounding_box(point: Cell, start_x: int, start_y: int) -> bool:
     px, py = point
+    if px == start_x:
+        return False
     return (start_x - 3 <= px <= start_x + 3) and (start_y - 2 <= py <= start_y + 2)
 
 def generate_offsets(max_shift: int) -> list[int]:
@@ -122,7 +124,7 @@ def print_42_shape(width: int, height: int, entry: Cell, goal: Cell) -> None:
 
 if __name__ == "__main__":
     try:
-        print_42_shape(18 , 15, (0 ,2), (4, 5))
+        print_42_shape(17 , 15, (8 ,2), (4, 5))
     except ValueError:
         print("error")
 
