@@ -4,10 +4,10 @@ import random
 
 Cell = tuple[int, int]
 
-N = 1  # NORTH
-E = 2  # EAST
-S = 4  # SOUTH
-W = 8  # WEST
+N = 1  # NORTH 0001 1は閉じてる
+E = 2  # EAST 0010
+S = 4  # SOUTH 0100
+W = 8  # WEST 1000
 
 DIRECTIONS: list[tuple[int, int, int]] = [
     (0, -1, N),
@@ -97,13 +97,13 @@ class MazeGenerator:
             candidates = []
 
             for dx, dy, bit in DIRECTIONS:
-                nx, ny = current[0] + dx, current[1] + dy
+                nx, ny = current[0] + dx, current[1] + dy  # tupleなのでindexで取り出す
                 if (
                     (0 <= nx < self.width)
                     and (0 <= ny < self.height)
                     and (nx, ny) in un_visit
                 ):
-                    # (0 <= x < width) and (0 <= y < height) で壁を避ける、1行で書ける
+                    # (0 <= x < width) and (0 <= y < height) で外壁を避ける、1行で書ける
                     candidates.append((nx, ny, bit))
             if candidates:  # candidatesが存在すれば
                 dx, dy, bit = self._random.choice(candidates)
@@ -127,22 +127,18 @@ class MazeGenerator:
         for cell in cells:
             if loops >= 2:
                 break
-                dx, dy, bit = cell
-
-            loops += 1
-
-            # 3＊3空きにならない安全な壁を探す
-            # 見つかったら空ける　loops += 1
-            # みつからなかったら諦めてbreakする
-            """
-            隣のセル(nx, ny)がグリッド内か(0 <= nx < widthなど、generator()と同じ)
-            その方向の壁が今、閉じているか(self._walls[cell] & bitが真なら閉じている)
-            隣のセルがself._42blockedに入っていないか
-            全部クリアなら、その壁を開けて(&= ~bitの要領)、loops += 1
-            """
-
-                
-
-            # maze作りのファイルは1ファイルでと課題で指定あり
-            # 42作るのは独立関数
+            for dx, dy, bit in DIRECTIONS:
+                nx, ny = cell[0] + dx, cell[1] + dy
+                if (
+                    (0 <= nx < self.width)
+                    and (0 <= ny < self.height)  # 幅高さチェック
+                    and self._walls[cell] & bit
+                    # 穴閉じてるか積集合＆チェック、共通して持っているbitがあればその方角に壁がある
+                    and (nx, ny) not in self._42blocked  # 42ブロック避ける
+                    ):
+                    self._walls[cell] &= ~bit
+                    self._walls[(nx, ny)] &= ~OPPOSITE[bit]
+                    loops += 1
+                    break
+            # 3*3ロジック考える
             # 最短経路を出すのはメソッドかな、迷路の情報必要だし、、私がやる方が良いかも
