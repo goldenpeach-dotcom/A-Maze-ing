@@ -117,6 +117,32 @@ class MazeGenerator:
             else:
                 stack.pop()  # どこにもいけないから戻る
 
+        if not self.perfect:
+            self._add_loops()  # loop用メソッドつくる
+
+    def _add_loops(self) -> None:
+        cells = list(self._walls)
+        self._random.shuffle(cells)
+        loops: int = 0
+        for cell in cells:
+            if loops >= 2:
+                break
+                dx, dy, bit = cell
+
+            loops += 1
+
+            # 3＊3空きにならない安全な壁を探す
+            # 見つかったら空ける　loops += 1
+            # みつからなかったら諦めてbreakする
+            """
+            隣のセル(nx, ny)がグリッド内か(0 <= nx < widthなど、generator()と同じ)
+            その方向の壁が今、閉じているか(self._walls[cell] & bitが真なら閉じている)
+            隣のセルがself._42blockedに入っていないか
+            全部クリアなら、その壁を開けて(&= ~bitの要領)、loops += 1
+            """
+
+                
+
             # maze作りのファイルは1ファイルでと課題で指定あり
             # 42作るのは独立関数
             # 最短経路を出すのはメソッドかな、迷路の情報必要だし、、私がやる方が良いかも
