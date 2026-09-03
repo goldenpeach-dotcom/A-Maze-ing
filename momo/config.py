@@ -19,7 +19,7 @@ class Config:
 
 
 def read_config_file(file_name: str) -> dict[str, str]:
-    """Read the file(config.txt) 
+    """Read the file(config.txt)
 
     parameter: configuration file name
     return: A dictionary of basic maze information

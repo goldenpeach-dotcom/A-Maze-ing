@@ -11,7 +11,7 @@ def get_protected_points(
     entry: Cell, exit_point: Cell
 ) -> list[Cell]:
     """ Get the coordinates to protect
- 
+
         parameter: width of maze, height of maze,
         entry point, exit point
         return list[tuple[int, int]]
@@ -35,14 +35,12 @@ def get_protected_points(
     )
     center: Cell = [(x, y) for x in x_mid for y in y_mid]
     return corners + center + [entry, exit_point]
-    # center: Cell = (width // 2, height // 2)
-    # return corners + [center, entry, exit_point]
 
 
 def fits_in_maze(start_x: int, start_y: int, width: int, height: int) -> bool:
-    """ Check if it's within the outer frame of the maze 
+    """ Check if it's within the outer frame of the maze
 
-        parameter: center point(x, y), 
+        parameter: center point(x, y),
         width & height of the maze
     """
 
@@ -51,7 +49,7 @@ def fits_in_maze(start_x: int, start_y: int, width: int, height: int) -> bool:
 
 
 def in_bounding_box(point: Cell, start_x: int, start_y: int) -> bool:
-    """ Check for duplicates with the space that contains "42" 
+    """ Check for duplicates with the space that contains "42"
 
         parameter: coordinates to compare, coordinates of center
     """
@@ -84,8 +82,8 @@ def find_valid_position(
     """ Find a place where 42 characters can fit
 
         move the center up and down to search
-        parameter: coodinates of center of the maze, 
-        width $ height of the maze
+        parameter: coodinates of center of the maze,
+        width & height of the maze
         coordinates to be protected
         return: valid_position[tuple[int, int]]
     """
@@ -109,8 +107,8 @@ def find_valid_position_2d(
 
     """ Find a place where 42 characters can fit
 
-        parameter: coodinates of center of the maze, 
-        width $ height of the maze
+        parameter: coodinates of center of the maze,
+        width & height of the maze
         coordinates to be protected
         return: valid_position[tuple[int, int]]
         Move in rings from the center outward to search
@@ -132,7 +130,7 @@ def find_valid_position_2d(
 
 
 def build_pattern(start_x: int, start_y: int) -> list[Cell]:
-    """ Return 42 pattern coordinates 
+    """ Return 42 pattern coordinates
 
         parameter: coordinates of center of the maze
         return: A list of coordinates showing 42 patterns
@@ -177,7 +175,6 @@ def make_42_walls(
     to protect and fits within the outer frame.
     Returns the coordinates of a place where you can place 42
     Return an empty list if you can't find it
-
     """
     pattern_width: int = 7
     pattern_height: int = 5
@@ -216,7 +213,7 @@ def make_42_walls(
 
 
 def print_42_shape(width: int, height: int, entry: Cell, goal: Cell) -> None:
-    """ test print the 42 in the box 
+    """ test print the 42 in the box
 
     parameter: width & height of the maze, coordinates of entry_point,
     coordinates of exit_point
