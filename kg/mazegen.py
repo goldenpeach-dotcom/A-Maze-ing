@@ -137,8 +137,10 @@ class MazeGenerator:
                     and (nx, ny) not in self._42blocked  # 42ブロック避ける
                     ):
                     self._walls[cell] &= ~bit
+                    # 壁があるのを空ける
                     self._walls[(nx, ny)] &= ~OPPOSITE[bit]
-                    loops += 1
+                    # next cell の対応壁空ける
+                    loops += 1  # loop1こできる
                     break
             # 3*3ロジック考える
             # 最短経路を出すのはメソッドかな、迷路の情報必要だし、、私がやる方が良いかも
