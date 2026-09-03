@@ -1,3 +1,8 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 Cell = tuple[int, int]
 
 def get_protected_points(width: int, height: int, entry: Cell, exit_point: Cell) -> list[Cell]:
@@ -7,8 +12,13 @@ def get_protected_points(width: int, height: int, entry: Cell, exit_point: Cell)
         (0, height - 1),
         (width - 1, height - 1),
     ]
-    center: Cell = (width // 2, height // 2)
-    return corners + [center, entry, exit_point]
+
+    x_mid: int = [width // 2] if width % 2 else [width // 2 - 1, width // 2]
+    y_mid: int = [height // 2] if height % 2 else [height // 2 - 1, height // 2]
+    center: Cell = [(x, y) for x in x_mid for y in y_mid]
+    return corners + center + [entry, exit_point]
+    # center: Cell = (width // 2, height // 2)
+    # return corners + [center, entry, exit_point]
 
 
 def fits_in_maze(start_x: int, start_y: int, width: int, height: int) -> bool:
@@ -18,6 +28,8 @@ def fits_in_maze(start_x: int, start_y: int, width: int, height: int) -> bool:
 
 def in_bounding_box(point: Cell, start_x: int, start_y: int) -> bool:
     px, py = point
+    if px == start_x:
+        return False
     return (start_x - 3 <= px <= start_x + 3) and (start_y - 2 <= py <= start_y + 2)
 
 def generate_offsets(max_shift: int) -> list[int]:
@@ -89,8 +101,9 @@ def make_42_walls(width: int, height: int, entry: Cell, goal: Cell) -> list[Cell
     pattern_width: int = 7
     pattern_height: int = 5
 
-    if (width + 3) <= pattern_width or (height + 3) <= pattern_height:
-        raise ValueError("width or height is too small to add 42!")
+    if width <= (pattern_width + 3) or height <= (pattern_height + 3):
+        logger.warning("width or height is too small to add 42!")
+        return []
 
     start_x: int = width // 2
     start_y: int = height // 2
@@ -104,16 +117,20 @@ def make_42_walls(width: int, height: int, entry: Cell, goal: Cell) -> list[Cell
     try:
         valid_x, valid_y = find_valid_position(start_x, start_y, width, height, protected)
     except ValueError:
-        valid_x, valid_y = find_valid_position_2d(start_x, start_y, width, height, protected)
-
-
-    wall_42 = build_pattern(valid_x, valid_y)
+        try:
+            valid_x, valid_y = find_valid_position_2d(start_x, start_y, width, height, protected)
+        except ValueError:
+            logger.warning("no valid position found for 42 pattern(both 1D and 2D search failed); returning empty wall list")
+            return []
+    wall_42: list[Cell] = build_pattern(valid_x, valid_y)
 
     return wall_42
 
 
 def print_42_shape(width: int, height: int, entry: Cell, goal: Cell) -> None:
     wall_cells: list[Cell] = make_42_walls(width, height, entry, goal)
+    if not wall_cells:
+        return
     wall_set = set(wall_cells)
     for y in range(height):
         row = "".join("#" if (x, y) in wall_set else "." for x in range(width))
@@ -121,8 +138,9 @@ def print_42_shape(width: int, height: int, entry: Cell, goal: Cell) -> None:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.WARNING)
     try:
-        print_42_shape(18 , 15, (0 ,2), (4, 5))
+        print_42_shape(3 , 6, (8 ,2), (4, 5))
     except ValueError:
         print("error")
 
