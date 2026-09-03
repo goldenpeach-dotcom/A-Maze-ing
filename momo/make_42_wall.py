@@ -7,8 +7,13 @@ def get_protected_points(width: int, height: int, entry: Cell, exit_point: Cell)
         (0, height - 1),
         (width - 1, height - 1),
     ]
-    center: Cell = (width // 2, height // 2)
-    return corners + [center, entry, exit_point]
+
+    x_mid: int = [width // 2] if width % 2 else [width // 2 - 1, width // 2]
+    y_mid: int = [height // 2] if height % 2 else [height // 2 - 1, height // 2]
+    center: Cell = [(x, y) for x in x_mid for y in y_mid]
+    return corners + center + [entry, exit_point]
+    # center: Cell = (width // 2, height // 2)
+    # return corners + [center, entry, exit_point]
 
 
 def fits_in_maze(start_x: int, start_y: int, width: int, height: int) -> bool:
@@ -91,7 +96,7 @@ def make_42_walls(width: int, height: int, entry: Cell, goal: Cell) -> list[Cell
     pattern_width: int = 7
     pattern_height: int = 5
 
-    if (width + 3) <= pattern_width or (height + 3) <= pattern_height:
+    if width <= (pattern_width + 3) or height <= (pattern_height + 3):
         raise ValueError("width or height is too small to add 42!")
 
     start_x: int = width // 2
