@@ -138,6 +138,7 @@ def print_42_shape(width: int, height: int, entry: Cell, goal: Cell) -> None:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.WARNING)
     try:
         print_42_shape(3 , 6, (8 ,2), (4, 5))
     except ValueError:
