@@ -15,19 +15,22 @@ def read_config_file(file_name: str) -> dict[str, str]:
 
     datas: dict[str, str] = {}
 
-    with open (file_name, "r") as file:
-        for line_num, line in enumerate(file, start=1):
-            line = line.strip()
+    try:
+        with open (file_name, "r") as file:
+            for line_num, line in enumerate(file, start=1):
+                line = line.strip()
 
-            if line.startswith("#"):
-                continue
+                if not line or line.startswith("#"):
+                    continue
 
-            if "=" not in line:
-                raise ValueError(f"Syntax error on line {line_num}: "
-                                 f"missing '='")
+                if "=" not in line:
+                    raise ValueError(f"Syntax error on line {line_num}: "
+                                     f"missing '='")
 
-            key,value = line.split("=", 1)
-            datas[key] = value
+                key,value = line.split("=", 1)
+                datas[key] = value
+    except OSError as e:
+        raise ValueError(f"Could not read config file. '{file_name}': {e}")
 
     return datas
 
@@ -114,7 +117,10 @@ def parse_config(file_name: str) -> Config:
 
 
 if __name__ == "__main__":
-    result = read_config_file("config.txt")
-    print(result)
-    config = parse_config("config.txt")
-    print(config)
+    try:
+        result = read_config_file("config.txt")
+        print(result)
+        config = parse_config("config.txt")
+        print(config)
+    except (OSError, ValueError) as e:
+        print(f"error!: {e}")
