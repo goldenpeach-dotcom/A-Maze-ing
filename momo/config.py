@@ -1,7 +1,14 @@
 from dataclasses import dataclass
 
+
 @dataclass
 class Config:
+    """ Contents of the settings file
+
+    attributes: width, height, coordinates of entrance & exit
+    output_file name, maze_mode, number to recreate the same maze
+    """
+
     width: int
     height: int
     maze_entry: tuple[int, int]
@@ -12,11 +19,16 @@ class Config:
 
 
 def read_config_file(file_name: str) -> dict[str, str]:
+    """Read the file(config.txt) 
+
+    parameter: configuration file name
+    return: A dictionary of basic maze information
+    """
 
     datas: dict[str, str] = {}
 
     try:
-        with open (file_name, "r") as file:
+        with open(file_name, "r") as file:
             for line_num, line in enumerate(file, start=1):
                 line = line.strip()
 
@@ -27,7 +39,7 @@ def read_config_file(file_name: str) -> dict[str, str]:
                     raise ValueError(f"Syntax error on line {line_num}: "
                                      f"missing '='")
 
-                key,value = line.split("=", 1)
+                key, value = line.split("=", 1)
                 datas[key] = value
     except OSError as e:
         raise ValueError(f"Could not read config file. '{file_name}': {e}")
@@ -36,6 +48,8 @@ def read_config_file(file_name: str) -> dict[str, str]:
 
 
 def parse_config(file_name: str) -> Config:
+    """ Configuration file parser """
+
     raw_data = read_config_file(file_name)
 
     seed = None
@@ -115,8 +129,8 @@ def parse_config(file_name: str) -> Config:
     )
 
 
-
 if __name__ == "__main__":
+    """ test """
     try:
         result = read_config_file("config.txt")
         print(result)
