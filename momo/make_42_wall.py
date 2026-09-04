@@ -33,7 +33,7 @@ def get_protected_points(
     y_mid: list[int] = (
         [height // 2] if height % 2 else [height // 2 - 1, height // 2]
     )
-    center: Cell = [(x, y) for x in x_mid for y in y_mid]
+    center: list[Cell] = [(x, y) for x in x_mid for y in y_mid]
     return corners + center + [entry, exit_point]
 
 
