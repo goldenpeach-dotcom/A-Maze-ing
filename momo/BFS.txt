@@ -1,0 +1,78 @@
+<考え方>
+queue:今いる場所からつながっている場所を順番に書き留めておく
+visited:訪問済みフラグ
+previous:その場所の前のセル（どこから来たか）
+
+S - a - b
+|   |   |
+c - d - e
+        |
+        Goal
+
+
+(1) queueにSを入れる
+    queue[S]
+
+(2) visited[S] = True
+
+(3) currentはS
+
+(4) Sとつながっているa,cをqueueに入れる。
+    （visited == Falseのもの）
+    visited[a] = True
+    visited[c] = True
+    previous[a] = S
+    previous[c] = S
+    queue[a, c]
+    
+
+(5) currnentにa
+    queue[c]
+
+(6) aとつながっているb,dをqueueに入れる。
+    visited[b] = True
+    visited[d] = True
+    previous[b] = a
+    previous[d] = a
+    queue[c, b, d]
+
+
+(7) currentにc
+    queue[b, d]
+
+(8) cとつながっているS,dはVisitedのなので、queueには入れない。
+(9) currentにb
+    queue[d]
+
+(10) bとつながっているaはvisitedなので、eだけqueueに入れる
+    visited[e] = True
+    previous[e] = b
+    queue[d, e]
+
+
+(11) currentにd
+    queue[e]
+
+(12) dとつながっているものはすべてvisitedなのでqueueには何も入れない
+
+(13) curerntにe
+    queue[]
+
+(14) eとつながっているGoalをqueueに入れる
+    queue[Goal]
+    previous[Goal] = e
+
+(15) currentにGoal　終了
+    queue []
+
+(16)？Goalからpreviousをたどって、Sにたどり着く順番を出し、逆順に描画する
+
+previous[a] = S
+previous[c] = S
+previous[b] = a
+previous[d] = a
+previous[e] = b
+previous[Goal] = e
+？たどるってどう書けばいいの？
+
+Startからいける道が複数あるとき、それを一番先に見に行くかってどうすればいいの？
