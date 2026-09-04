@@ -28,13 +28,7 @@ def bfs(walls: dict[Cell, int], start: Cell, goal: Cell) -> list[Cell] | None:
             found = True
             break                      # ゴール到達 → ループ終了
 
-        # TODO: currentから4方向(DIRECTIONSを使う)を試す
-        #   1. 壁が開いている方向か? (前回やったビット演算)
-        #   2. まだ訪問していないか?
-        #   両方満たすなら:
-        #     - visitedに追加
-        #     - came_from[next_cell] = current
-        #     - queue.append(next_cell)
+ 
         for dx, dy, bit in DIRECTIONS:
             nx, ny = current[0] + dx, current[1] + dy
             next_cell = (current[0] + dx, current[1] + dy)
@@ -63,6 +57,3 @@ def bfs(walls: dict[Cell, int], start: Cell, goal: Cell) -> list[Cell] | None:
 
     path.reverse()
     return path
-
-    # TODO: came_fromを使ってgoalからstartまで逆にたどり、
-    #       リストを作って反転して返す(見つからなければNoneを返す)
