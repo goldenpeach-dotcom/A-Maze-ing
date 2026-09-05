@@ -15,26 +15,30 @@ DIRECTIONS: list[tuple[int, int, int]] = [
     ]  # (dx,dy,方角bit)のタプルリスト、セルの移動時に使う
 
 
-def bfs(walls: dict[Cell, int], start: Cell, goal: Cell) -> list[Cell] | None:
+def bfs(walls: dict[Cell, int], start: Cell, goal: Cell, width:int, height: int) -> list[Cell] | None:
     queue = deque([start])
     came_from: dict[Cell, Cell] = {}   # 「このマスにはどこから来たか」
     visited = {start}
-    Found = False
+    found: bool = False
 
     while queue:
         current = queue.popleft()      # キューの先頭を取り出す(FIFO)
 
         if current == goal:
-            Found = True
+            found = True
             break                      # ゴール到達 → ループ終了
 
         for dx, dy, bit in DIRECTIONS:
-            nx, ny = current[0] + dx, current[1] + dy
-            next_cell = (nx, ny)
-
             # 壁があったら次
             if walls[current] & bit:
                 continue
+
+            nx, ny = current[0] + dx, current[1] + dy
+            next_cell = (nx, ny)
+
+            if not (0 <= nx < width and 0 <= ny < height):
+                continue  # 念のための境界チェック
+
             # 訪問済みなら次
             if next_cell in visited:
                 continue
@@ -43,7 +47,7 @@ def bfs(walls: dict[Cell, int], start: Cell, goal: Cell) -> list[Cell] | None:
             came_from[next_cell] = current
             queue.append(next_cell)
 
-    if not Found:
+    if not found:
         return None
 
     # ここまで来たら current == goal のはず。goalからstartまで逆にたどる
