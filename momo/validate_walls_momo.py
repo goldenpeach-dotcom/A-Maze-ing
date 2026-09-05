@@ -20,7 +20,7 @@ DIRECTIONS: list[tuple[int, int, int]] = [
 OPPOSITE = {N: S, S: N, E: W, W: E}
 
 
-def validate_walls(walls: Cell, width: int, height: int) -> bool:
+def validate_walls(walls: dict[Cell, int], width: int, height: int) -> bool:
     for y in range(height):
         for x in range(width):
             cell_walls = walls[(x, y)]

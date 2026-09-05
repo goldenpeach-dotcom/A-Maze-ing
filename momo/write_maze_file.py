@@ -16,9 +16,9 @@ DIRECTIONS: list[tuple[int, int, int]] = [
 
 
 def write_maze_file(
-    filename: str, walls: Cell,
+    filename: str, walls: dict[Cell, int],
     width: int, height: int,
-    entry: Cell, exit_cell: Cell, path: Cell
+    entry: Cell, exit_cell: Cell, path: list[Cell]
 ) -> bool:
 
     try:
