@@ -102,7 +102,7 @@ f-stringの!rは、値に''をつけて、わかりやすくしてくれるコ�
 │   └── mazegen.py       　# MazeGeneratorクラス（ロジック担当）
 └── src/                   # 【補助コード】
     ├── __init__.py
-    ├── config_check.py   # 設定ファイルの読み込み担当
+    ├── config_parse.py   # 設定ファイルの読み込み担当
     ├── visualizer_mlx.py  # できれば作りたい、GUI描画とユーザー入力監視（MLX）
     ├── visualizer_ascii.py # ターミナル表示担当
     └── file_output.py     # 16進数形式でのファイル書き出し担当
