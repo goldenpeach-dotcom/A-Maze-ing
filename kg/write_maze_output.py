@@ -14,7 +14,7 @@ DIRECTIONS: list[tuple[int, int, int]] = [
 
 
 class FileOutputError(Exception):
-    """迷路データが不正、またはファイル書き込みに失敗したときに送出される。"""
+    """Raise when the maze data is invalid or file output fails"""
 
 
 def write_maze_file(
