@@ -1,6 +1,19 @@
 import logging
 
-def write_maze_file(filename, walls, width, height, entry, exit_cell, path) -> bool:
+Cell = tuple[int, int]
+
+DIRECTIONS: list[tuple[int, int, int]] = [
+    (0, -1, N),
+    (1, 0, E),
+    (0, 1, S),
+    (-1, 0, W),
+    ]  # (dx,dy,方角bit)のタプルリスト、セルの移動時に使う
+
+
+def write_maze_file(
+    filename: str, walls:Cell,
+    width: int, height: int,
+    entry: Cell, exit_cell: Cell, path: Cell) -> bool:
 
     try:
         lines = []
@@ -21,7 +34,9 @@ def write_maze_file(filename, walls, width, height, entry, exit_cell, path) -> b
         lines.append('')  # 空行
 
         # ④ 経路を方角の文字列に変換
-        dir_letters = {(0, -1): 'N', (1, 0): 'E', (0, 1): 'S', (-1, 0): 'W'}
+        LETTER_FOR_BIT = {N: 'N', E: 'E', S: 'S', W: 'W'}
+        dir_letters = {(dx, dy): LETTER_FOR_BIT[bit] for dx, dy, bit in DIRECTIONS}
+
         path_str = ''.join(
             dir_letters[(b[0] - a[0], b[1] - a[1])]
             for a, b in zip(path, path[1:])
