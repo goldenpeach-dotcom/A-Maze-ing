@@ -25,13 +25,12 @@ def bfs(walls: dict[Cell, int], start: Cell, goal: Cell) -> list[Cell] | None:
         current = queue.popleft()      # キューの先頭を取り出す(FIFO)
 
         if current == goal:
-            found = True
+            Found = True
             break                      # ゴール到達 → ループ終了
 
- 
         for dx, dy, bit in DIRECTIONS:
             nx, ny = current[0] + dx, current[1] + dy
-            next_cell = (current[0] + dx, current[1] + dy)
+            next_cell = (nx, ny)
 
             # 壁があったら次
             if walls[current] & bit:
@@ -44,10 +43,8 @@ def bfs(walls: dict[Cell, int], start: Cell, goal: Cell) -> list[Cell] | None:
             came_from[next_cell] = current
             queue.append(next_cell)
 
-
-    if not found:
+    if not Found:
         return None
-
 
     # ここまで来たら current == goal のはず。goalからstartまで逆にたどる
     path = [current]

@@ -1,4 +1,4 @@
-# セルAの方向dに壁がある ⇒ 
+# セルAの方向dに壁がある ⇒
 # 隣のセルB(Aからd方向に1マス進んだセル)の、dの逆方向にも壁がある
 # を、全セル・全方向についてチェックする
 import logging
@@ -18,6 +18,7 @@ DIRECTIONS: list[tuple[int, int, int]] = [
 ]
 
 OPPOSITE = {N: S, S: N, E: W, W: E}
+
 
 def validate_walls(walls: Cell, width: int, height: int) -> bool:
     for y in range(height):
