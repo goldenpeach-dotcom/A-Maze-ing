@@ -110,8 +110,8 @@ class MazeGenerator:
                 ):
                     candidates.append((nx, ny, bit))
             if candidates:
-                dx, dy, bit = self._random.choice(candidates)
-                next_cell = dx, dy
+                nx, ny, bit = self._random.choice(candidates)
+                next_cell = nx, ny
                 un_visit.discard(next_cell)
                 self._walls[current] &= ~bit
                 self._walls[next_cell] &= ~OPPOSITE[bit]
