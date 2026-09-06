@@ -1,20 +1,21 @@
 
 import random
 import make_42_wall
+from collections import deque
 
 Cell = tuple[int, int]
 
-N = 1  # NORTH 0001 1は閉じてる
-E = 2  # EAST 0010
-S = 4  # SOUTH 0100
-W = 8  # WEST 1000
+N = 1
+E = 2
+S = 4
+W = 8
 
 DIRECTIONS: list[tuple[int, int, int]] = [
     (0, -1, N),
     (1, 0, E),
     (0, 1, S),
     (-1, 0, W),
-    ]  # (dx,dy,方角bit)のタプルリスト、セルの移動時に使う
+    ]
 
 OPPOSITE = {N: S, S: N, E: W, W: E}
 
@@ -69,15 +70,11 @@ class MazeGenerator:
         self.perfect = perfect
         self.seed = seed
         self._random = random.Random(seed)
-        # randomモジュールのクラスrandom.Random、乱数生成インスタンス
-        # seedに値がなければランダムに生成される、同じ数値で再現性
         self._walls: dict[Cell, int] = {
             (x, y): 15 for x in range(width) for y in range(height)}
         self._protected: set[Cell] = _protected_cells(
             width, height, entry, exit)
-        # 保護するcell 中央値、四隅、入口出口
         self.pattern_omitted_reason: str | None = None
-        # 42ブロックが保護するセルを上書きしようとした場合のフラグ
         proposed_42 = set(
             make_42_wall.make_42_walls(width, height, entry, exit)
         )
@@ -100,38 +97,39 @@ class MazeGenerator:
     def generator(self) -> None:
         stack = [self.entry]
         un_visit = set(self._walls) - {self.entry} - self._42blocked
-        # 未訪問Cellリスト、最初にentry以外のCellを全部入れる、set済み42ブロックも引く
 
-        while stack:  # maze作成ロジック
+        while stack:
             current = stack[-1]
-            # 今いる場所、-1は後ろから1番目の意味、1だと前から、2だと前2番目...
             candidates = []
-            # 壁を空ける候補を入れる箱
-            for dx, dy, bit in DIRECTIONS:  # 進む方向を探る、次に進むセル候補をピックアップ
+            for dx, dy, bit in DIRECTIONS:
                 nx, ny = current[0] + dx, current[1] + dy
-                # 次進むセル、tupleなのでindexで取り出す
                 if (
                     (0 <= nx < self.width)
                     and (0 <= ny < self.height)
-                    and (nx, ny) in un_visit  # 外壁内で、まだ通っていなかったら
+                    and (nx, ny) in un_visit
                 ):
-                    candidates.append((nx, ny, bit))  # 候補にcell入れる
-            if candidates:  # 候補セルが存在すれば
+                    candidates.append((nx, ny, bit))
+            if candidates:
                 dx, dy, bit = self._random.choice(candidates)
-                # 候補内から選んでcellにunpack、choiceは無作為
-                next_cell = dx, dy  # 選んだ座標を次に進むセルとして入れる
+                next_cell = dx, dy
                 un_visit.discard(next_cell)
-                # currentとnext_cellと壁の穴あけ、bitマスク↓、self.wallsの更新をここでやる
                 self._walls[current] &= ~bit
                 self._walls[next_cell] &= ~OPPOSITE[bit]
-                stack.append(next_cell)  # whileで掘り進める
+                stack.append(next_cell)
             else:
-                stack.pop()  # どこにもいけないから戻る
+                stack.pop()
 
         if not self.perfect:
-            self._add_loops()  # loopを最低1つ作るメソッド、全域木perfect:True作った後の分岐
+            self._add_loops()
 
-    def _add_loops(self) -> None:  # loop作るための壁の穴あけ
+    def _add_loops(self) -> None:
+        """
+            perfectがfalseの時に必要となるloopを作る
+            引数：
+                クラスattribute
+            返し値:
+                なし
+        """
         cells = list(self._walls)
         self._random.shuffle(cells)
         loops: int = 0
@@ -144,12 +142,10 @@ class MazeGenerator:
                 nx, ny = cell[0] + dx, cell[1] + dy
                 if (
                     (0 <= nx < self.width)
-                    and (0 <= ny < self.height)  # 幅高さチェック
+                    and (0 <= ny < self.height)
                     and self._walls[cell] & bit
-                    # 穴閉じてるか積集合＆チェック、共通して持っているbitがあればその方角に壁がある
-                    and (nx, ny) not in self._42blocked  # 42ブロック避ける
+                    and (nx, ny) not in self._42blocked
                 ):
-                    # ここで3＊3穴にならないかチェックする、falseでbreak
                     if self._check_3X3(cell, bit, (nx, ny)):
                         self._walls[cell] &= ~bit
                         self._walls[(nx, ny)] &= ~OPPOSITE[bit]
@@ -158,7 +154,7 @@ class MazeGenerator:
 
     def _check_3X3(
         self, cell: Cell, bit: int, next_cell: Cell
-    ) -> bool:  # 3X3マス回避
+    ) -> bool:
         """"3X3"空白マスになるかチェックする
             引数：
                 cell 今いる座標
@@ -209,3 +205,47 @@ class MazeGenerator:
                 if block_ng_flg:
                     return False
         return True
+
+    def shortest_path(self) -> list[Cell] | None:
+        queue = deque([self.entry])
+        came_from: dict[Cell, Cell] = {}   # 「このマスにはどこから来たか」
+        visited = {self.entry}
+        found: bool = False
+
+        while queue:
+            current = queue.popleft()      # キューの先頭を取り出す(FIFO)
+
+            if current == self.exit:
+                found = True
+                break                      # ゴール到達 → ループ終了
+
+            for dx, dy, bit in DIRECTIONS:
+                # 壁があったら次
+                if self._walls[current] & bit:
+                    continue
+
+                nx, ny = current[0] + dx, current[1] + dy
+                next_cell = (nx, ny)
+
+                if not (0 <= nx < self.width and 0 <= ny < self.height):
+                    continue  # 念のための境界チェック
+
+                # 訪問済みなら次
+                if next_cell in visited:
+                    continue
+
+                visited.add(next_cell)
+                came_from[next_cell] = current
+                queue.append(next_cell)
+
+        if not found:
+            return None
+
+        # ここまで来たら current == goal のはず。goalからstartまで逆にたどる
+        path = [current]
+        while current != self.entry:
+            current = came_from[current]
+            path.append(current)
+
+        path.reverse()
+        return path
