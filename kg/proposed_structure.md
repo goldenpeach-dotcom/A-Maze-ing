@@ -11,6 +11,7 @@ venv前提です
 未├── mazegen/                # 【再利用可能なパッケージ】
 未│   ├── __init__.py
 未│   ├── pyproject.toml      # buildに必要な全要素（pipインストール用設定ファイル）
+着│   ├── make_42_wall.py     # 迷路用42ブロック制作
 着│   └── mazegen.py       　 # MazeGeneratorクラス（ロジック担当）名前重複、変える？
 未└── src/                    # 【補助コード】
 未    ├── __init__.py
