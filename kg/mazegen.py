@@ -134,7 +134,7 @@ class MazeGenerator:
         self._random.shuffle(cells)
         loops: int = 0
         for cell in cells:
-            if loops >= 2:
+            if loops >= 20:
                 break
             if cell in self._42blocked:
                 continue
@@ -186,7 +186,7 @@ class MazeGenerator:
                                 (x, y) == next_cell
                                 and scan_bit == OPPOSITE[bit]
                             )
-                            if not is_candidate and not (
+                            if not is_candidate and (
                                 self._walls[(x, y)] & scan_bit
                             ):
                                 block_ng_flg = False

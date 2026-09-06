@@ -46,10 +46,12 @@ def render(maze: MazeGenerator, color_index: int = 0) -> str:
 
     return "\n".join("".join(row) for row in canvas)
 
-    while True:
 
-
-if __name__ == "__main__":
-    maze = MazeGenerator(width=19, height=15, entry=(0, 0), exit=(18, 11), perfect=False)
+def main() -> None:
+    maze = MazeGenerator(width=3, height=15, entry=(0, 0), exit=(1, 1), perfect=False)
     maze.generator()
     print(render(maze, color_index=1))
+        
+
+if __name__ == "__main__":
+    main()
