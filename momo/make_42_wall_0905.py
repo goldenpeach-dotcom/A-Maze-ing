@@ -27,14 +27,25 @@ def get_protected_points(
     # x_mid: int = [width // 2] if width % 2 else [width // 2 - 1, width // 2]
     # y_mid: int = [height // 2]
     # if height % 2 else [height // 2 - 1, height // 2]
-    x_mid: list[int] = (
-        [width // 2] if width % 2 else [width // 2 - 1, width // 2]
-    )
-    y_mid: list[int] = (
-        [height // 2] if height % 2 else [height // 2 - 1, height // 2]
-    )
-    center: list[Cell] = [(x, y) for x in x_mid for y in y_mid]
+    # x_mid: list[int] = (
+    #     [width // 2] if width % 2 else [width // 2 - 1, width // 2]
+    # )
+    # y_mid: list[int] = (
+    #     [height // 2] if height % 2 else [height // 2 - 1, height // 2]
+    # )
+    # center: list[Cell] = [(x, y) for x in x_mid for y in y_mid]
+    # return corners + center + [entry, exit_point]
+    start_x = width // 2
+    start_y = height // 2
+    if width % 2 == 0:
+        start_x -= 1
+    if height % 2 == 0:
+        start_y -= 1
+
+    center: list[Cell] = [(start_x, start_y)]
+
     return corners + center + [entry, exit_point]
+
 
 
 def fits_in_maze(start_x: int, start_y: int, width: int, height: int) -> bool:
@@ -54,13 +65,15 @@ def in_bounding_box(point: Cell, start_x: int, start_y: int) -> bool:
         parameter: coordinates to compare, coordinates of center
     """
 
-    px, py = point
-    if px == start_x:
-        return False
-    return (
-        start_x - 3 <= px <= start_x + 3
-        and start_y - 2 <= py <= start_y + 2
-    )
+    # px, py = point
+    # if px == start_x:
+    #     return False
+    # return (
+    #     start_x - 3 <= px <= start_x + 3
+    #     and start_y - 2 <= py <= start_y + 2
+    # )
+    walls: list[Cell] = build_pattern(start_x, start_y)
+    return point in walls
 
 
 def generate_offsets(max_shift: int) -> list[int]:
@@ -231,6 +244,6 @@ def print_42_shape(width: int, height: int, entry: Cell, goal: Cell) -> None:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.WARNING)
     try:
-        print_42_shape(13, 16, (8, 2), (4, 5))
+        print_42_shape(70, 36, (36, 17), (32, 18))
     except ValueError:
         print("error")

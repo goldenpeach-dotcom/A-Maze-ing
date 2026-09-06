@@ -1,0 +1,34 @@
+＜a_maze_ingの処理順序イメージ＞
+
+(1)config.txtを受け取って、パース。
+    config: Config = parse_config("config.txt")
+ 
+ return Config(
+        width=width,
+        height=height,
+        maze_entry=maze_entry,
+        maze_exit=maze_exit,
+        output_file=output_file,
+        perfect=perfect,
+        seed=seed,
+    )
+
+(2)迷路生成。
+    gen = MazeGenerator(
+        width=config.width,
+        heifght=config.height,
+        entry=config.maze_entry......
+    )
+
+    gen.generator()
+
+(3)経路探索
+    gen.shortest_path()
+
+(4)画面に出力
+    gen.visualizer_stdout
+
+(5)ファイルに出力
+　　gen.write_maze_file(config.output_file)
+
+？実行したら自動的に画像出力まで実行されていいのか？
