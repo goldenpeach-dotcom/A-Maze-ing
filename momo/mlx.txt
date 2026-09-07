@@ -1,0 +1,88 @@
+<準備>
+課題ページのmlx-2.2.tgzを使う。Python用のwhlラッパー。
+Pythonのパッケージ本体（wheel形式）
+　tar -xzvf mlx-2.2.tgz
+
+インストールする
+　cd ubuntu(うちの環境)
+  pip3 install mlx-2.2-py3-none-any.whl
+
+動作確認
+　・python3 -c "import mlx; print(mlx.__file__)"
+　　import成功するとパスが表示される
+
+　・中にどんな関数やクラスがあるか確認する。
+　　python3 -c "import mlx; print(dir(mlx))"
+　　['ARRAY', 'ArgumentError', 'Array', 'BigEndianStructure', 'CDLL', 'CFUNCTYPE', 'DEFAULT_MODE', 'LibraryLoader', 'LittleEndianStructure', 'Mlx', 'POINTER', 'PYFUNCTYPE', 'PyDLL', 'RTLD_GLOBAL', 'RTLD_LOCAL', 'SetPointerType', 'Structure', 'Union', '__builtins__', '__cached__', '__doc__', '__file__', '__loader__', '__name__', '__package__', '__path__', '__spec__', 'addressof', 'alignment', 'byref', 'c_bool', 'c_buffer', 'c_byte','c_char', 'c_char_p', 'c_double', 'c_float', 'c_int', 'c_int16', 'c_int32', 'c_int64', 'c_int8', 'c_long', 'c_longdouble', 'c_longlong', 'c_short', 'c_size_t', 'c_ssize_t', 'c_ubyte', 'c_uint', 'c_uint16', 'c_uint32', 'c_uint64', 'c_uint8', 'c_ulong', 'c_ulonglong', 'c_ushort', 'c_void_p', 'c_voidp', 'c_wchar', 'c_wchar_p', 'cast', 'cdll', 'create_string_buffer', 'create_unicode_buffer', 'get_errno', 'memmove', 'memset', 'mlx','os', 'pointer', 'py_object', 'pydll', 'pythonapi', 'resize', 'set_errno', 'sizeof', 'string_at', 'wstring_at']
+　　
+　　Mlxクラスの中にどんなメソッドがあるか？
+　　python3 -c "import mlx; print(dir(mlx.Mlx))"
+　　['SYNC_IMAGE_WRITABLE', 'SYNC_WIN_COMPLETED', 'SYNC_WIN_FLUSH', '__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'mlx_clear_window', 'mlx_destroy_image', 'mlx_destroy_window', 'mlx_do_key_autorepeatoff', 'mlx_do_key_autorepeaton', 'mlx_do_sync', 'mlx_expose_hook', 'mlx_get_data_addr', 'mlx_get_screen_size', 'mlx_hook', 'mlx_init', 'mlx_key_hook', 'mlx_loop', 'mlx_loop_exit', 'mlx_loop_hook', 'mlx_mouse_get_pos', 'mlx_mouse_hide', 'mlx_mouse_hook', 'mlx_mouse_move', 'mlx_mouse_show', 'mlx_new_image', 'mlx_new_window', 'mlx_pixel_put', 'mlx_png_file_to_image', 'mlx_put_image_to_window', 'mlx_release', 'mlx_string_put', 'mlx_sync', 'mlx_xpm_file_to_image']
+
+step0 ウィンドウを一つ開くだけのコード
+　１）Mlx()のインスタンスを作る
+　２）そのメソッドとしてmlx_関数を呼ぶ
+　３）ウィンドウタイトルの"Maze"はバイト列で渡す。このパッケージは自動的にencode('utf-8')をしてくれるので、
+　　　"Maze"だけでよい。
+　４）mlx_loopはブロックしないと無限ループに入り、ウィンドウが閉じるまで戻ってこない
+'''Python
+import mlx
+
+m = mlx.Mlx()
+mlx_ptr = m.mlx_init()
+win_ptr = m.mlx_new_window(mlx_ptr, 800, 600, "Maze")
+'''
+
+step1 画像バッファでの描画
+mlx_new_image(self, mlx_ptr, width, height)
+　戻り値: 画像オブジェクトのポインタを返す
+　
+mlx_get_data_addr(self, img_ptr)
+　戻り値: data_view(mlx_new_imageで作った画像の生ピクセルデータ全体で一次元配列。
+　　　　　　画像は二次元→一行ずつ横に並べて、縦に連結して一本の長い配列として保存)
+　　　　　bpp(1ピクセル当たりのビット数。実行してみてprintで確認。)
+　　　　　size_line(一行当たりのバイト数)
+　　　　　endian(整数をバイト列に分解するときどちらの端から並べるのをこのシステムが期待しているかわかる。リトルとビッグ
+　　　　　　リトルは値の小さい桁から並べる。ビッグは値の大きい桁から)
+mlx_put_image_to_window(self, mlx_ptr, win_ptr, img_ptr, x, y)
+　戻り値:作った画像をウィンドに一括で貼り付ける
+
+<流れ>
+# 1)Mlxをインスタンス化
+m = mlx.Mlx()
+
+# 2)mlx_initで初期化
+mlx_ptr = m.mlx_init()
+
+# 3)mlx_new_windowで指定したタイトルとサイズで画面を開く
+win_ptr = m.mlx_new_window(mlx_ptr, 800, 600, "Maze")
+
+# 4)mlx_new_imageで画像オブジェクトを作成
+img_ptr = m.mlx_new_image(mlx_ptr, 800, 600)
+
+# 5)画像の生ピクセルデータの先頭アドレスや様々な情報を返す
+data_view, bpp, size_line, endian = m.mlx_get_data_addr(img_ptr)
+
+# 6)この画像を、このウィンドウの、この位置に貼る」という関連付け
+m.mlx_put_image_to_window(mlx_ptr, win_ptr, img_ptr, 0, 0)
+
+test_msl.py 参照
+
+step2 画面を閉じる　キー入力を拾う。
+
+# 1)コールバック関数on_keyを定義
+def on_key(keycode, param):
+    print(keycode)
+    if keycode == 65307:  # 一般的なLinux(X11)でのESCキーコード。実際に確認してから確定させる
+        m.mlx_loop_exit(mlx_ptr)
+
+# 2)-step1-6)の下にコールバック関数を登録するための関数を登録
+# キーが押されたらon_keyという関数を呼ぶという予約
+m.mlx_key_hook(win_ptr, on_key, None)
+
+# 3)mlx_loop(mlx_ptr)が呼ばれる → 監視ループが始まる（ここでブロックする）
+#   -何かキーが押されるたびに → 登録しておいたon_key(keycode, param)が呼ばれる
+#   -on_keyの中のprint(keycode)が実行される → その数値がターミナルに表示される
+#   -もしkeycode == 65307（ESC）なら → m.mlx_loop_exit(mlx_ptr)が呼ばれる
+#   -mlx_loop_exitが呼ばれたことで、ようやくmlx_loopの監視ループが終了し、プログラムの制御が戻ってくる
+m.mlx_loop(mlx_ptr)
