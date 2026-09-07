@@ -124,19 +124,20 @@ class MazeGenerator:
 
     def _add_loops(self) -> None:
         """
-            perfectがfalseの時に必要となるloopを作る,行き止まり解消
+            perfectがfalseの時に必要となるloopを作る
             引数：
                 クラスattribute
             返し値:
                 なし
         """
         cells = list(self._walls)
-        candidates = [
-            cell for cell in cells if self._walls[cell]
-            in {7, 11, 13, 14} and cell not in self._42blocked
-        ]
-        self._random.shuffle(candidates)
-        for cell in candidates:
+        self._random.shuffle(cells)
+        loops: int = 0
+        for cell in cells:
+            if loops >= 2:
+                break
+            if cell in self._42blocked:
+                continue
             for dx, dy, bit in DIRECTIONS:
                 nx, ny = cell[0] + dx, cell[1] + dy
                 if (
@@ -148,6 +149,7 @@ class MazeGenerator:
                     if self._check_3X3(cell, bit, (nx, ny)):
                         self._walls[cell] &= ~bit
                         self._walls[(nx, ny)] &= ~OPPOSITE[bit]
+                        loops += 1
                         break
 
     def _check_3X3(
@@ -155,7 +157,7 @@ class MazeGenerator:
     ) -> bool:
         """"3X3"空白マスになるかチェックする
             引数：
-                cuurent_cell 今いる座標
+                cell 今いる座標
                 bit 進む方向（東西南北）
                 next_cell 壁を開ける先のセル
             返し値：
