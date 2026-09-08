@@ -182,9 +182,15 @@ class MazeRenderer:
 
         self.mlx = Mlx()
         self.mlx_ptr = self.mlx.mlx_init()
+        # 9/9追加
+        if not self.mlx_ptr:
+            raise RuntimeError("Failed to initialize MLX")
         self.win_ptr = self.mlx.mlx_new_window(
             self.mlx_ptr, win_width, win_height, title
         )
+        # 9/9追加
+        if not self.win_ptr:
+            raise RuntimeError("Failed to create MLX window")
 
         self._callbacks: list[Callable[..., int]] = []  # GC対策
         self.palette_index = 0
@@ -239,6 +245,8 @@ class MazeRenderer:
         self.img_ptr = self.mlx.mlx_new_image(
             self.mlx_ptr, self.win_width, self.win_height
         )
+        if not self.img_ptr:
+            raise RuntimeError("Failed to create MLX image")
         self.data_view, self.bpp, self.size_line, self.endian = \
             self.mlx.mlx_get_data_addr(self.img_ptr)
 
