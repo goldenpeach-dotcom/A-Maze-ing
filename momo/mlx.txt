@@ -86,3 +86,65 @@ m.mlx_key_hook(win_ptr, on_key, None)
 #   -もしkeycode == 65307（ESC）なら → m.mlx_loop_exit(mlx_ptr)が呼ばれる
 #   -mlx_loop_exitが呼ばれたことで、ようやくmlx_loopの監視ループが終了し、プログラムの制御が戻ってくる
 m.mlx_loop(mlx_ptr)
+
+
+
+maze_gen_factoryはMazeRendererの中には実装がなくて、外から関数を渡してもらう設計にしています。中身(実際に迷路を作る処理)はmain()の中のmake_maze()です。
+
+流れはこうです:
+
+python
+def main() -> None:
+    from mazegen import MazeGenerator
+
+    def make_maze():                          # ← ここが実際の中身
+        mg = MazeGenerator(width=30, height=30, entry=(0, 0), exit=(25, 14),
+                            perfect=True)
+        mg.generator()
+        return mg
+
+    renderer = MazeRenderer(make_maze, win_width=800, win_height=600)
+    #                       ^^^^^^^^^ ここで関数そのものを渡している(呼び出してはいない)
+python
+class MazeRenderer:
+    def __init__(self, maze_gen_factory, ...):
+        self.maze_gen_factory = maze_gen_factory   # 関数を保存しておくだけ
+
+    def _load_new_maze(self) -> None:
+        mg = self.maze_gen_factory()   # ← ここで初めて呼び出す(新しいmg=MazeGeneratorが返る)
+
+こうしている理由は、MazeRendererがMazeGeneratorの存在や作り方(widthやentryをどう決めるか)を
+一切知らなくて済むようにするためです。
+「1キーで再生成」のたびに_load_new_maze()がself.maze_gen_factory()を呼び直すので、
+そのたびにmake_maze()が実行されて新しい迷路が作られます。
+
+もしwidth=30, height=30のように毎回固定値ではなく、
+コマンドライン引数やconfig.txtから読みたいなら、make_maze()の中身をそこに合わせて書き換えればOKです(MazeRenderer側は変更不要)。
+
+# a_maze_ing.py (リポジトリ直下)
+
+from mazegen import MazeGenerator
+from src.config_parse import parse_config          # 関数名・戻り値は仮です
+from src.visualizer_mlx import MazeRenderer
+
+
+def main() -> None:
+    config = parse_config("config.txt")
+
+    def make_maze():
+        mg = MazeGenerator(
+            width=config.width,
+            height=config.height,
+            entry=config.entry,
+            exit=config.exit,
+            perfect=config.perfect,
+        )
+        mg.generator()
+        return mg
+
+    renderer = MazeRenderer(make_maze, win_width=800, win_height=600)
+    renderer.run()
+
+
+if __name__ == "__main__":
+    main()
