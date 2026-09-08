@@ -18,7 +18,7 @@ A-Maze-ing: mlx (ctypes版 MiniLibX) を使った迷路描画モジュール
 """
 import sys
 
-from typing import Any, Callable, List, Literal
+from typing import Any, Callable, Literal
 
 from mlx import Mlx  # type: ignore
 
@@ -186,7 +186,7 @@ class MazeRenderer:
             self.mlx_ptr, win_width, win_height, title
         )
 
-        self._callbacks: List[Callable[..., int]] = []  # GC対策
+        self._callbacks: list[Callable[..., int]] = []  # GC対策
         self.palette_index = 0
         self.show_path = False
         self.search_path: list[Cell] = []
