@@ -407,11 +407,35 @@ class MazeRenderer:
         self._callbacks.append(self._on_client_message)
         self._callbacks.append(self._on_key)
         self._callbacks.append(self._on_loop)
-        self.mlx.mlx_hook(self.win_ptr, 17, (1 << 17), self._on_close, None)
-        self.mlx.mlx_hook(self.win_ptr, 33, 0, self._on_client_message, None)
-        self.mlx.mlx_key_hook(self.win_ptr, self._on_key, None)
-        self.mlx.mlx_loop_hook(self.mlx_ptr, self._on_loop, None)
-        self.mlx.mlx_loop(self.mlx_ptr)
+        # self.mlx.mlx_hook(self.win_ptr, 17, (1 << 17), self._on_close, None)
+        # self.mlx.mlx_hook(self.win_ptr, 33, 0, self._on_client_message, None)
+        # self.mlx.mlx_key_hook(self.win_ptr, self._on_key, None)
+        # self.mlx.mlx_loop_hook(self.mlx_ptr, self._on_loop, None)
+        # self.mlx.mlx_loop(self.mlx_ptr)
+        if self.mlx.mlx_hook(
+            self.win_ptr, 17, (1 << 17),
+            self._on_close, None
+        ) != 0:
+            raise RuntimeError("Failed to set close hook")
+        
+        if self.mlx.mlx_hook(
+            self.win_ptr, 33, 0,
+            self._on_client_message, None
+        ) != 0:
+            raise RuntimeError("Failed to set client message hook")
+
+        if self.mlx.mlx_key_hook(
+            self.win_ptr, self._on_key, None
+        ) != 0:
+            raise RuntimeError("Failed to set key hook")
+
+        if self.mlx.mlx_loop_hook(
+            self.mlx_ptr, self._on_loop, None
+        ) != 0:
+            raise RuntimeError("Failed to set loop hook")
+
+        if self.mlx.mlx_loop(self.mlx_ptr) != 0:
+            raise RuntimeError("MLX loop failed")
 
 
 def main() -> None:
