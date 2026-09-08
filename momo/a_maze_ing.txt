@@ -32,3 +32,24 @@
 　　gen.write_maze_file(config.output_file)
 
 ？実行したら自動的に画像出力まで実行されていいのか？
+
+ディレクトリ構成
+.
+├── TODO-LICENSE.md
+├── TODO-Makefile
+├── TODO-README.md
+├── TODO-requirements.txt
+├── a_maze_ing.py
+├── config.txt
+├── maze.txt
+├── mazegen
+│   ├── TODO-pyproject.toml
+│   ├── __init__.py
+│   ├── make_42_wall.py
+│   └── mazegen.py
+└── src
+    ├── TODO-visualizer_mlx.py
+    ├── __init__.py
+    ├── config_parse.py
+    ├── visualizer_stdout.py
+    └── write_maze_output.py

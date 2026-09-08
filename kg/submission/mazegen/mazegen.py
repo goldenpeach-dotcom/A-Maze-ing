@@ -1,6 +1,6 @@
 
 import random
-import make_42_wall
+from . import make_42_wall
 from collections import deque
 
 Cell = tuple[int, int]
@@ -184,7 +184,7 @@ class MazeGenerator:
                                 (x, y) == next_cell
                                 and scan_bit == OPPOSITE[bit]
                             )
-                            if not is_candidate and (
+                            if (not is_candidate) and (
                                 self._walls[(x, y)] & scan_bit
                             ):
                                 block_ng_flg = False
@@ -196,7 +196,7 @@ class MazeGenerator:
                                 (x, y) == next_cell
                                 and (scan_bit == OPPOSITE[bit])
                             )
-                            if not is_candidate and (
+                            if (not is_candidate) and (
                                 self._walls[(x, y)] & scan_bit
                             ):
                                 block_ng_flg = False
