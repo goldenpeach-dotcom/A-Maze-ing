@@ -14,18 +14,14 @@ A-Maze-ing: mlx (ctypes版 MiniLibX) を使った迷路描画モジュール
     2: 最短経路アニメーションの表示/非表示トグル
     3: 壁の色を変える
     4: 終了
-
 """
 import sys
 
-from typing import Any, Callable, List, Literal
-
-from mlx import Mlx  # type: ignore
-
 sys.argv = [sys.argv[0]]
+
+from mlx import Mlx
+
 Cell = tuple[int, int]
-Palette = dict[str, int]
-DataView = Any
 
 N, E, S, W = 1, 2, 4, 8
 ALL_WALLS = N | E | S | W  # 4方向とも壁 = "42"の文字を構成するセル
@@ -34,8 +30,8 @@ BG_COLOR = 0xFF000000     # 黒
 WALL_THICKNESS = 3        # 壁の線の太さ(px)
 
 # 壁色・経路色・42マーク色を1セットにしたパレット。3キーでセットごと切替
-PALETTES: list[Palette] = [
-    {"wall": 0xFFFFFFFF, "path": 0xFFF7A0AD, "mark": 0xFFB1E5E6,
+PALETTES = [
+    {"wall": 0xFFCCFFA, "path": 0xFFF7A0AD, "mark": 0xFFB1E5E6,
      "entry": 0xFFF29191, "exit": 0xFFFF3D6E},
     {"wall": 0xFF2A835F, "path": 0xFF8BBB92, "mark": 0xFF12544F,
      "entry": 0xFF092328, "exit": 0xFFFFD25C},
@@ -62,60 +58,41 @@ KEY_1, KEY_2, KEY_3, KEY_4 = 49, 50, 51, 52
 # --------------------------------------------------------------------------- #
 # 生の画像バッファへの描画ヘルパー
 # --------------------------------------------------------------------------- #
-def put_pixel(
-        data_view: DataView, size_line: int, bpp: int, x: int, y: int,
-        color: int, endian: int
-        ) -> None:
+def put_pixel(data_view, size_line, bpp, x, y, color, endian):
     offset = y * size_line + x * (bpp // 8)
-    byteorder: Literal['little', 'big'] = 'little' if endian == 0 else 'big'
+    byteorder = 'little' if endian == 0 else 'big'
     color_bytes = color.to_bytes(4, byteorder=byteorder)
     data_view[offset:offset + bpp // 8] = color_bytes
 
 
-def draw_hline(
-        data_view: DataView, size_line: int, bpp: int,
-        x: int, y: int, length: int, color: int, endian: int
-        ) -> None:
+def draw_hline(data_view, size_line, bpp, x, y, length, color, endian):
     for i in range(length):
         put_pixel(data_view, size_line, bpp, x + i, y, color, endian)
 
 
-def draw_vline(
-        data_view: DataView, size_line: int, bpp: int,
-        x: int, y: int, length: int, color: int, endian: int
-        ) -> None:
+def draw_vline(data_view, size_line, bpp, x, y, length, color, endian):
     for i in range(length):
         put_pixel(data_view, size_line, bpp, x, y + i, color, endian)
 
 
-def fill_rect(
-        data_view: DataView, size_line: int, bpp: int,
-        x: int, y: int, width: int, height: int, color: int, endian: int
-        ) -> None:
+def fill_rect(data_view, size_line, bpp, x, y, width, height, color, endian):
     for row in range(height):
         draw_hline(data_view, size_line, bpp, x, y + row, width, color, endian)
 
 
-def fill_all(
-        data_view: DataView, size_line: int, bpp: int,
-        width: int, height: int, color: int, endian: int
-        ) -> None:
+def fill_all(data_view, size_line, bpp, width, height, color, endian):
     for y in range(height):
         draw_hline(data_view, size_line, bpp, 0, y, width, color, endian)
 
 
-def draw_cell_walls(
-        data_view: DataView, size_line: int, bpp: int,
-        cell_w: int, cell_h: int, x: int, y: int, mask: int,
-        color: int, endian: int, thickness: int, max_x: int,
-        max_y: int
-        ) -> None:
+def draw_cell_walls(data_view, size_line, bpp, cell_w, cell_h, x, y, mask,
+                     color, endian, thickness, max_x, max_y):
     px, py = x, y
     x_end = px + cell_w - 1
     y_end = py + cell_h - 1
     half = thickness // 2
 
-    def h_at(cy: int, length: int, start_x: int) -> None:
+    def h_at(cy, length, start_x):
         # 曲がり角で隙間ができないよう、両端をthickness分だけ延長する
         ext_start = max(0, start_x - half)
         ext_end = min(max_x, start_x + length - 1 + half)
@@ -126,7 +103,7 @@ def draw_cell_walls(
                 draw_hline(data_view, size_line, bpp, ext_start, yy,
                            ext_length, color, endian)
 
-    def v_at(cx: int, length: int, start_y: int) -> None:
+    def v_at(cx, length, start_y):
         ext_start = max(0, start_y - half)
         ext_end = min(max_y, start_y + length - 1 + half)
         ext_length = ext_end - ext_start + 1
@@ -165,11 +142,8 @@ def _prefix_sums(sizes: list[int]) -> list[int]:
 # 本体
 # --------------------------------------------------------------------------- #
 class MazeRenderer:
-    def __init__(
-            self, maze_gen_factory: Callable[[], Any],
-            win_width: int = 800, win_height: int = 600,
-            title: str = "A-Maze-ing"
-            ) -> None:
+    def __init__(self, maze_gen_factory, win_width: int = 800,
+                 win_height: int = 600, title: str = "A-Maze-ing"):
         """
         maze_gen_factory: 呼び出すたびに新しい MazeGenerator インスタンスを
         作って generator() 済みで返す関数。再生成(メニュー1)のときに
@@ -186,7 +160,7 @@ class MazeRenderer:
             self.mlx_ptr, win_width, win_height, title
         )
 
-        self._callbacks: List[Callable[..., int]] = []  # GC対策
+        self._callbacks = []  # GC対策
         self.palette_index = 0
         self.show_path = False
         self.search_path: list[Cell] = []
@@ -194,22 +168,10 @@ class MazeRenderer:
 
         self.img_ptr = None
         self.data_view = None
-        self.bpp = 0
-        self.size_line = 0
-        self.endian = 0
-        self._loop_count = 0
-        self._initialized_render = False
-        self.maze: dict[Cell, int] = {}
-        self.maze_w = 0
-        self.maze_h = 0
-        self.entry: Cell = (0, 0)
-        self.exit: Cell = (0, 0)
-        self.col_widths: list[int] = []
-        self.row_heights: list[int] = []
-        self.col_x: list[int] = []
-        self.row_y: list[int] = []
-        self.maze_pixel_w = 0
-        self.maze_pixel_h = 0
+        self.bpp = None
+        self.size_line = None
+        self.endian = None
+
         self._load_new_maze()
 
     # -- 迷路の(再)生成 ------------------------------------------------- #
@@ -243,14 +205,12 @@ class MazeRenderer:
             self.mlx.mlx_get_data_addr(self.img_ptr)
 
     # -- 描画 ------------------------------------------------------------- #
-    def _palette(self) -> Palette:
+    def _palette(self) -> dict:
         return PALETTES[self.palette_index]
 
     def _render_maze(self) -> None:
-        fill_all(
-            self.data_view, self.size_line, self.bpp,
-            self.win_width, self.win_height, BG_COLOR, self.endian
-        )
+        fill_all(self.data_view, self.size_line, self.bpp,
+                  self.win_width, self.win_height, BG_COLOR, self.endian)
         palette = self._palette()
         max_x = self.maze_pixel_w - 1
         max_y = self.maze_pixel_h - 1
@@ -288,46 +248,6 @@ class MazeRenderer:
     def _draw_search_cell(self, x: int, y: int) -> None:
         self._fill_marker_cell((x, y), self._palette()["path"])
 
-    def _render_and_present(self) -> None:
-        """【変更】迷路を画像に描き、ウィンドウに表示し、文字を乗せる一連の処理"""
-
-        # 1. 画像バッファへの描画
-        palette = self._palette()
-        fill_all(
-            self.data_view, self.size_line, self.bpp,
-            self.win_width, self.win_height, BG_COLOR, self.endian
-        )
-        palette = self._palette()
-        max_x = self.maze_pixel_w - 1
-        max_y = self.maze_pixel_h - 1
-        for (x, y), mask in self.maze.items():
-            px, py = self.col_x[x], self.row_y[y]
-            cw, ch = self.col_widths[x], self.row_heights[y]
-            if mask == ALL_WALLS:
-                fill_rect(self.data_view, self.size_line, self.bpp,
-                          px, py, cw, ch, palette["mark"], self.endian)
-                continue
-            draw_cell_walls(
-                self.data_view, self.size_line, self.bpp,
-                cw, ch, px, py, mask, palette["wall"], self.endian,
-                WALL_THICKNESS, max_x, max_y
-            )
-
-        self._fill_marker_cell(self.entry, palette["entry"])
-        self._fill_marker_cell(self.exit, palette["exit"])
-
-        # 探索経路の描画（アニメーションさせない場合はここで一気に塗る、またはフラグで制御）
-        if self.show_path:
-            for (x, y) in self.search_path[:self.search_index + 1]:
-                self._fill_marker_cell((x, y), palette["path"])
-
-        # 2. 画面へ画像を反映
-        self.mlx.mlx_put_image_to_window(
-            self.mlx_ptr, self.win_ptr, self.img_ptr, 0, 0
-        )
-        # 3. 文字を上乗せ（画像を表示した『後』に描画するのがmlxの鉄則）
-        self._draw_menu()
-
     def _draw_menu(self) -> None:
         menu_top = self.win_height - MENU_HEIGHT
         for i, line in enumerate(MENU_LINES):
@@ -337,83 +257,58 @@ class MazeRenderer:
             )
 
     # -- ループ / イベント ------------------------------------------------ #
-    def _on_loop(self, _param: int) -> int:
-        # 9/8修正 1. 最初の数フレーム（ウィンドウ生成直後）はX11の安定を待つために描画をスキップ
-        if not hasattr(self, '_loop_count'):
-            self._loop_count = 0
-        if self._loop_count < 10:  # 10フレーム（約0.1〜0.2秒）待つ
-            self._loop_count += 1
-            return 0
+    def _on_loop(self, _param=None) -> int:
+        self._render_maze()
 
-        # 2. 定期的に画面へ画像とメニューを転送して同期バグを防ぐ
-        # &パレットや迷路が変わったら確実に画像バッファを再描画にさらに変更
-        # (ただし内部の迷路計算やfill_allは必要なとき以外skip)
-        if (not hasattr(self, '_initialized_render')
-                or not self._initialized_render):
-            self._render_maze()
-            self._initialized_render = True
-
-        # アニメーション処理（元のロジックを維持）
         if self.show_path and self.search_index < len(self.search_path):
             x, y = self.search_path[self.search_index]
             self._draw_search_cell(x, y)
             self.search_index += 1
         elif self.show_path:
+            # 最後まで到達したら全経路を描き続ける
             for (x, y) in self.search_path:
                 self._draw_search_cell(x, y)
 
-        # 9/8 2回目の修正　画面への転送とメニュー表示
-        self.mlx.mlx_clear_window(self.mlx_ptr, self.win_ptr)
         self.mlx.mlx_put_image_to_window(
             self.mlx_ptr, self.win_ptr, self.img_ptr, 0, 0
         )
-
         self._draw_menu()
         return 0
 
-    def _on_close(self, *args: Any) -> int:
+    def _on_close(self, _param=None) -> int:
         self.mlx.mlx_loop_exit(self.mlx_ptr)
         return 0
 
-    def _on_key(self, keycode: int, _param: Any = None) -> int:
+    def _on_key(self, keycode: int, _param=None) -> int:
         if keycode == KEY_1:
             self._load_new_maze()
-            self._initialized_render = False  # 再描画を要求 9/8追加
         elif keycode == KEY_2:
             self.show_path = not self.show_path
             self.search_index = 0
-            self._initialized_render = False  # 再描画を要求 9/8追加
         elif keycode == KEY_3:
             self.palette_index = (self.palette_index + 1) % len(PALETTES)
-            self._initialized_render = False
         elif keycode in (KEY_4, ESC_KEY):
             self.mlx.mlx_loop_exit(self.mlx_ptr)
         return 0
 
-    def _on_client_message(self, *args: Any) -> int:
-        self.mlx.mlx_loop_exit(self.mlx_ptr)
-        return 0
-
     def run(self) -> None:
         self._callbacks.append(self._on_close)
-        self._callbacks.append(self._on_client_message)
         self._callbacks.append(self._on_key)
         self._callbacks.append(self._on_loop)
-        self.mlx.mlx_hook(self.win_ptr, 17, (1 << 17), self._on_close, None)
-        self.mlx.mlx_hook(self.win_ptr, 33, 0, self._on_client_message, None)
+
+        self.mlx.mlx_hook(self.win_ptr, 17, 0, self._on_close, None)
         self.mlx.mlx_key_hook(self.win_ptr, self._on_key, None)
         self.mlx.mlx_loop_hook(self.mlx_ptr, self._on_loop, None)
+
         self.mlx.mlx_loop(self.mlx_ptr)
 
 
 def main() -> None:
     from mazegen import MazeGenerator
 
-    def make_maze() -> MazeGenerator:
-        mg = MazeGenerator(
-            width=30, height=30, entry=(0, 0), exit=(25, 14),
-            perfect=True
-        )
+    def make_maze():
+        mg = MazeGenerator(width=30, height=30, entry=(0, 0), exit=(25, 14),
+                            perfect=True)
         mg.generator()
         return mg
 
