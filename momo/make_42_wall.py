@@ -71,7 +71,7 @@ def make_42_walls(
 
     protected_set = set(get_protected_points(width, height, entry, goal))
 
-    # 42パターンが枠内に収まる中心候補 
+    # 42パターンが枠内に収まる中心候補
     # A top contender fitting within the 42-pattern framework.
 
     candidates = [

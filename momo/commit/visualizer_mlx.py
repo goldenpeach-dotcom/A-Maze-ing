@@ -66,6 +66,19 @@ def put_pixel(
         data_view: DataView, size_line: int, bpp: int, x: int, y: int,
         color: int, endian: int
         ) -> None:
+    """
+        整数で表されたcolorを４バイトのバイト列に変換し、
+        画像データを画面(x, y)の位置に画面表示する。
+        引数：
+            data_view 画像の生ピクセルデータ全体
+            size_line　１行あたりのバイト数
+            bpp　１ピクセルあたりの色情報を何ビットで表現するか
+            x, y　書き込み先の座標
+            color　色のコードを整数で表したもの
+            endian　エンディアン情報（整数をバイト列に分解するとき、どちらの端から
+            　　　　並べるか
+    """
+
     offset = y * size_line + x * (bpp // 8)
     byteorder: Literal['little', 'big'] = 'little' if endian == 0 else 'big'
     color_bytes = color.to_bytes(4, byteorder=byteorder)
@@ -76,6 +89,20 @@ def draw_hline(
         data_view: DataView, size_line: int, bpp: int,
         x: int, y: int, length: int, color: int, endian: int
         ) -> None:
+
+    """
+        横線を描く
+        引数：
+            data_view 画像の生ピクセルデータ全体
+            size_line　１行あたりのバイト数
+            bpp　１ピクセルあたりの色情報を何ビットで表現するか
+            x, y　書き始めの座標
+            length 線の長さ
+            color　色のコードを整数で表したもの
+            endian　エンディアン情報（整数をバイト列に分解するとき、どちらの端から
+                        　　　　並べるか
+    """
+
     for i in range(length):
         put_pixel(data_view, size_line, bpp, x + i, y, color, endian)
 
@@ -84,6 +111,19 @@ def draw_vline(
         data_view: DataView, size_line: int, bpp: int,
         x: int, y: int, length: int, color: int, endian: int
         ) -> None:
+
+    """
+        縦線を描く
+        引数：
+            data_view 画像の生ピクセルデータ全体
+            size_line　１行あたりのバイト数
+            bpp　１ピクセルあたりの色情報を何ビットで表現するか
+            x, y　書き始めの座標
+            length 線の長さ
+            color　色のコードを整数で表したもの
+            endian　エンディアン情報（整数をバイト列に分解するとき、どちらの端から
+                        　　　　並べるか
+    """
     for i in range(length):
         put_pixel(data_view, size_line, bpp, x, y + i, color, endian)
 
@@ -92,6 +132,20 @@ def fill_rect(
         data_view: DataView, size_line: int, bpp: int,
         x: int, y: int, width: int, height: int, color: int, endian: int
         ) -> None:
+
+    """
+        示された範囲を塗りつぶす
+        引数：
+            data_view 画像の生ピクセルデータ全体
+            size_line　１行あたりのバイト数
+            bpp　１ピクセルあたりの色情報を何ビットで表現するか
+            x, y　書き始めの座標
+            width 塗りつぶす幅
+            height 塗りつぶす高さ
+            color　色のコードを整数で表したもの
+            endian　エンディアン情報（整数をバイト列に分解するとき、どちらの端から
+                            　　　　並べるか
+    """
     for row in range(height):
         draw_hline(data_view, size_line, bpp, x, y + row, width, color, endian)
 
@@ -100,6 +154,19 @@ def fill_all(
         data_view: DataView, size_line: int, bpp: int,
         width: int, height: int, color: int, endian: int
         ) -> None:
+
+    """
+        画面すべてを塗りつぶす（背景用）
+        引数：
+            data_view 画像の生ピクセルデータ全体
+            size_line　１行あたりのバイト数
+            bpp　１ピクセルあたりの色情報を何ビットで表現するか
+            x, y　書き始めの座標
+            width 塗りつぶす幅
+            height 塗りつぶす高さ
+            color　色のコードを整数で表したもの
+            endian　エンディアン情報
+    """
     for y in range(height):
         draw_hline(data_view, size_line, bpp, 0, y, width, color, endian)
 
@@ -110,13 +177,37 @@ def draw_cell_walls(
         color: int, endian: int, thickness: int, max_x: int,
         max_y: int
         ) -> None:
+
+    """
+        壁の部分を塗る
+        引数：
+            data_view 画像の生ピクセルデータ全体
+            size_line　１行あたりのバイト数
+            bpp　１ピクセルあたりの色情報を何ビットで表現するか
+            cell_x, cell_y セルの位置
+            x, y　書き始めの座標
+            mask 壁の情報を見るビットマスク
+            color　色のコードを整数で表したもの
+            endian　エンディアン情報（整数をバイト列に分解するとき、どちらの端から
+                            　　　　並べるか
+            thickness線の太さ
+            max_x, max_y 線が画面をはみ出さないように境界値
+
+    """
+
     px, py = x, y
     x_end = px + cell_w - 1
     y_end = py + cell_h - 1
     half = thickness // 2
 
     def h_at(cy: int, length: int, start_x: int) -> None:
-        # 曲がり角で隙間ができないよう、両端をthickness分だけ延長する
+        """
+            曲がり角で隙間ができないよう、両端をthickness // 2ずつ延長する
+            引数：
+                cy　線の中心（基準）となるY座標
+                length　線本来の長さ
+                start_x 線の本来の開始x座標
+        """
         ext_start = max(0, start_x - half)
         ext_end = min(max_x, start_x + length - 1 + half)
         ext_length = ext_end - ext_start + 1
@@ -127,6 +218,13 @@ def draw_cell_walls(
                            ext_length, color, endian)
 
     def v_at(cx: int, length: int, start_y: int) -> None:
+        """
+            曲がり角で隙間ができないよう、両端をthickness // 2ずつ延長する
+            引数：
+                cx　線の中心（基準）となるx座標
+                length　線本来の長さ
+                start_y 線の本来の開始y座標
+        """
         ext_start = max(0, start_y - half)
         ext_end = min(max_y, start_y + length - 1 + half)
         ext_length = ext_end - ext_start + 1
@@ -147,14 +245,33 @@ def draw_cell_walls(
 
 
 def _distribute(total: int, count: int) -> list[int]:
-    """totalピクセルをcount個の区画に分配する。割り切れないあまりは
-    先頭の区画から1pxずつ足していく(結果、合計は必ずtotalぴったりになる)。"""
+    """
+        totalピクセルをcount個の区画に分配する。割り切れないあまりは
+        先頭の区画から1pxずつ足していく(結果、合計は必ずtotalぴったりになる)。
+        迷路の再生成で利用
+
+        引数：
+            total 画面の幅
+            count 分配する区画数
+
+        戻り値：
+            各セルに割り当てられた長さのリスト
+    """
     base, remainder = divmod(total, count)
     return [base + 1 if i < remainder else base for i in range(count)]
 
 
 def _prefix_sums(sizes: list[int]) -> list[int]:
-    """[w0, w1, w2] -> [0, w0, w0+w1, w0+w1+w2] のような累積開始位置。"""
+    """
+        [w0, w1, w2] -> [0, w0, w0+w1, w0+w1+w2] のような累積開始位置。
+        _distrebuteで配分するために迷路の幅や高さが均等ではないため、
+        ○番目のセルは左端から何ピクセル目にあるかを予め計算する。
+        引数：
+            sizes セルの大きさのリスト
+        戻り値：
+            左端から何ピクセル目にあるかの位置を示すリスト
+
+    """
     result = [0]
     for size in sizes:
         result.append(result[-1] + size)
@@ -171,9 +288,11 @@ class MazeRenderer:
             title: str = "A-Maze-ing"
             ) -> None:
         """
-        maze_gen_factory: 呼び出すたびに新しい MazeGenerator インスタンスを
-        作って generator() 済みで返す関数。再生成(メニュー1)のときに
-        もう一度呼び出す。
+            迷路を画面に描画するためのクラス
+
+            maze_gen_factory: 呼び出すたびに新しい MazeGenerator インスタンスを
+                作って generator() 済みで返す関数。再生成(メニュー1)のときに
+                もう一度呼び出す。
         """
         self.maze_gen_factory = maze_gen_factory
         self.win_width = win_width
@@ -182,17 +301,17 @@ class MazeRenderer:
 
         self.mlx = Mlx()
         self.mlx_ptr = self.mlx.mlx_init()
-        # 9/9追加
+
         if not self.mlx_ptr:
             raise RuntimeError("Failed to initialize MLX")
         self.win_ptr = self.mlx.mlx_new_window(
             self.mlx_ptr, win_width, win_height, title
         )
-        # 9/9追加
+
         if not self.win_ptr:
             raise RuntimeError("Failed to create MLX window")
 
-        self._callbacks: list[Callable[..., int]] = []  # GC対策
+        self._callbacks: list[Callable[..., int]] = []
         self.palette_index = 0
         self.show_path = False
         self.search_path: list[Cell] = []
@@ -218,8 +337,10 @@ class MazeRenderer:
         self.maze_pixel_h = 0
         self._load_new_maze()
 
-    # -- 迷路の(再)生成 ------------------------------------------------- #
     def _load_new_maze(self) -> None:
+        """
+            迷路の再生成
+        """
         mg = self.maze_gen_factory()
         self.maze = mg._walls
         self.maze_w = mg.width
@@ -252,9 +373,15 @@ class MazeRenderer:
 
     # -- 描画 ------------------------------------------------------------- #
     def _palette(self) -> Palette:
+        """
+        色の情報を返す
+        """
         return PALETTES[self.palette_index]
 
     def _render_maze(self) -> None:
+        """
+            背景と壁と４２のセルと出発点と到達点を塗る
+        """
         fill_all(
             self.data_view, self.size_line, self.bpp,
             self.win_width, self.win_height, BG_COLOR, self.endian
@@ -281,6 +408,12 @@ class MazeRenderer:
         self._fill_marker_cell(self.exit, palette["exit"])
 
     def _fill_marker_cell(self, cell: Cell, color: int) -> None:
+        """
+            出発点と到達点を塗る
+            引数：
+                cell セルの座標
+                color 整数の色番号
+        """
         x, y = cell
         px, py = self.col_x[x], self.row_y[y]
         cw, ch = self.col_widths[x], self.row_heights[y]
@@ -346,16 +479,19 @@ class MazeRenderer:
 
     # -- ループ / イベント ------------------------------------------------ #
     def _on_loop(self, _param: int) -> int:
-        # 9/8修正 1. 最初の数フレーム（ウィンドウ生成直後）はX11の安定を待つために描画をスキップ
+        """
+            メインループと連動して一定時間につき１マスだけ描画し、画面を更新する
+
+            引数:
+                _param:MiniLibXのルールブック仕様に必要な引数（関数では未使用）
+        """
+
         if not hasattr(self, '_loop_count'):
             self._loop_count = 0
         if self._loop_count < 10:  # 10フレーム（約0.1〜0.2秒）待つ
             self._loop_count += 1
             return 0
 
-        # 2. 定期的に画面へ画像とメニューを転送して同期バグを防ぐ
-        # &パレットや迷路が変わったら確実に画像バッファを再描画にさらに変更
-        # (ただし内部の迷路計算やfill_allは必要なとき以外skip)
         if (not hasattr(self, '_initialized_render')
                 or not self._initialized_render):
             self._render_maze()
@@ -370,7 +506,6 @@ class MazeRenderer:
             for (x, y) in self.search_path:
                 self._draw_search_cell(x, y)
 
-        # 9/8 2回目の修正　画面への転送とメニュー表示
         self.mlx.mlx_clear_window(self.mlx_ptr, self.win_ptr)
         self.mlx.mlx_put_image_to_window(
             self.mlx_ptr, self.win_ptr, self.img_ptr, 0, 0
@@ -380,17 +515,30 @@ class MazeRenderer:
         return 0
 
     def _on_close(self, *args: Any) -> int:
+        """
+            メインループを終了させ、プログラムを閉じる
+            引数：
+            MiniLibX（mlx）仕様の任意の引数
+
+        """
         self.mlx.mlx_loop_exit(self.mlx_ptr)
         return 0
 
     def _on_key(self, keycode: int, _param: Any = None) -> int:
+        """
+            キー入力に対応したメソッドを呼び出す
+            引数：
+                keycode 入力されたキーのコード
+
+            戻り値：成功したら０
+        """
         if keycode == KEY_1:
             self._load_new_maze()
-            self._initialized_render = False  # 再描画を要求 9/8追加
+            self._initialized_render = False
         elif keycode == KEY_2:
             self.show_path = not self.show_path
             self.search_index = 0
-            self._initialized_render = False  # 再描画を要求 9/8追加
+            self._initialized_render = False
         elif keycode == KEY_3:
             self.palette_index = (self.palette_index + 1) % len(PALETTES)
             self._initialized_render = False
@@ -399,25 +547,44 @@ class MazeRenderer:
         return 0
 
     def _on_client_message(self, *args: Any) -> int:
+        """
+             ウィンドウの「×ボタン」がクリックされたときに呼ばれるコールバック関数。
+            プログラムのメインループを安全に終了させ、ウィンドウを閉じます。
+
+            引数:
+                *args: MiniLibXのイベントから渡される任意の引数（関数内では未使用）
+
+            戻り値:
+                int: 正常終了を示すステータスコード (常に 0)
+
+        """
         self.mlx.mlx_loop_exit(self.mlx_ptr)
         return 0
 
     def run(self) -> None:
+        """
+            プログラムのメインループを開始し、各種イベントコールバックを登録する。
+
+            ウィンドウの閉じる操作（×ボタン）、キー入力、および定期的なフレーム更新の
+            フック関数を MiniLibX に登録し、無限ループ（イベント待ち受け状態）に入る。
+            また、GC（ガベージコレクション）による意図しない解放を防ぐため、
+            コールバック関数の参照を `_callbacks` リストに保持します。
+
+            Raises:
+                RuntimeError: 各種フック関数の登録、またはメインループの起動に失敗した場合。
+        """
+
         self._callbacks.append(self._on_close)
         self._callbacks.append(self._on_client_message)
         self._callbacks.append(self._on_key)
         self._callbacks.append(self._on_loop)
-        # self.mlx.mlx_hook(self.win_ptr, 17, (1 << 17), self._on_close, None)
-        # self.mlx.mlx_hook(self.win_ptr, 33, 0, self._on_client_message, None)
-        # self.mlx.mlx_key_hook(self.win_ptr, self._on_key, None)
-        # self.mlx.mlx_loop_hook(self.mlx_ptr, self._on_loop, None)
-        # self.mlx.mlx_loop(self.mlx_ptr)
+
         if self.mlx.mlx_hook(
             self.win_ptr, 17, (1 << 17),
             self._on_close, None
         ) != 0:
             raise RuntimeError("Failed to set close hook")
-        
+
         if self.mlx.mlx_hook(
             self.win_ptr, 33, 0,
             self._on_client_message, None
@@ -454,7 +621,6 @@ def main() -> None:
         renderer.run()
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
-
 
 
 if __name__ == "__main__":
