@@ -14,7 +14,7 @@ class ConfigError(ValueError):
 class Config:
     """configファイルの内容を保持するデータクラス。
 
-    属性:
+    Attributes:
         width: 迷路の幅。
         height: 迷路の高さ。
         maze_entry: 入口の座標。
@@ -44,7 +44,7 @@ def read_config_file(file_name: str) -> dict[str, str]:
     Returns:
         キーと値(どちらも文字列)の辞書。
 
-    例外:
+    Raises:
         ConfigError: ファイルが読めない、または書式が不正な場合。
     """
 
@@ -83,7 +83,7 @@ def parse_config(file_name: str) -> Config:
     Returns:
         検証済みのConfig。
 
-    例外:
+    Raises:
         ConfigError: 必須キーの不足、値の不正などがあった場合。
     """
 

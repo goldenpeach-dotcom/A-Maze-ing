@@ -50,17 +50,53 @@ make lint-strict
 config.txtの全キーと書式
 
 `WIDTH` `HEIGHT` `ENTRY` `EXIT` `OUTPUT_FILE` `PERFECT` は必須(mandatory)キー、
-`SEED` は課題文が例示している追加キー(additional key、任意)です。
+`SEED` `DISPLAY` は課題文が例示している追加キー(additional key、任意)です。
 
 ```
-WIDTH=21          # 迷路の幅(セル数)          [必須/mandatory]
-HEIGHT=20         # 迷路の高さ(セル数)        [必須/mandatory]
-ENTRY=0,0         # 入口座標(x,y)             [必須/mandatory]
-EXIT=20,19        # 出口座標(x,y)             [必須/mandatory]
-OUTPUT_FILE=maze.txt                          # [必須/mandatory]
-SEED=             # 空なら毎回ランダム、数値を指定すると再現可能  [任意/additional]
-PERFECT=false     # true: 完全迷路(ループ無し) / false: Pac-Man的な複数経路の盤面  [必須/mandatory]
+WIDTH=21
+HEIGHT=20
+ENTRY=0,0
+EXIT=20,19
+OUTPUT_FILE=maze.txt
+SEED=
+PERFECT=false
+DISPLAY=1
 ```
+
+| キー | 説明 | 区分 |
+|---|---|---|
+| `WIDTH` | 迷路の幅(セル数) | 必須/mandatory |
+| `HEIGHT` | 迷路の高さ(セル数) | 必須/mandatory |
+| `ENTRY` | 入口座標(x,y) | 必須/mandatory |
+| `EXIT` | 出口座標(x,y) | 必須/mandatory |
+| `OUTPUT_FILE` | 出力ファイル名 | 必須/mandatory |
+| `SEED` | 空なら毎回ランダム、数値を指定すると再現可能 | 任意/additional |
+| `PERFECT` | true: 完全迷路(ループ無し) / false: Pac-Man的な複数経路の盤面 | 必須/mandatory |
+| `DISPLAY` | 1: ターミナル表示 / 2: MLX(GUI)表示。省略時は1 | 任意/additional |
+
+コメントは行頭が`#`の行のみ対応(値の後ろに続けて書くインラインコメントには対応していないので、
+上記のように別行にすること)。
+
+### `DISPLAY=2`(MLX/GUI表示)を使うための準備
+
+`mlx`パッケージはPyPIには無いため、`requirements.txt`とは別に手動でインストールする必要がある。
+`mlx_parts/`フォルダに、使っているOS(Linuxディストリビューション)ごとのビルド済みwheelが入っている。
+
+```bash
+# Ubuntuの場合
+pip install mlx_parts/ubuntu/mlx-2.2-py3-none-any.whl
+# Fedoraの場合
+pip install mlx_parts/fedora/mlx-2.2-py3-none-any.whl
+```
+
+インストール確認:
+
+```bash
+python3 -c "import mlx; print(mlx.__file__)"
+```
+
+これが通れば、`config.txt`で`DISPLAY=2`にしてから`make run`(または`python3 a_maze_ing.py config.txt`)を
+実行するとMLXウィンドウが開く。
 
 ## 迷路生成アルゴリズム
 
@@ -195,6 +231,7 @@ mkaneko: 42壁生成、最短経路、configパース、GUI出力
 
 python関連のwebポータルサイトやキュレーションサイト
 およびAIをコードの使用方法例と解説・バグの原因調査・ドキュメント作成の補助などに使用した。
+翻訳サイト
 
 
 ## Resources(参考資料)
