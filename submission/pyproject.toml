@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mazegen"
+version = "1.0.0"
+description = "再利用可能な迷路生成器: 入口・出口付きのグリッド迷路、追加ループの有無、'42'パターンの埋め込みに対応"
+readme = "mazegen/README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "kohira" },
+    { name = "mkaneko" },
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mazegen*"]
+
+# mypyは`mypy .`実行時にpyproject.tomlを自動的に読み込む
+# Makefileのlintターゲットのコマンドは課題の指定通り変更なし。
+# venv/dist/build等は、自分たちが書いていないコードを対象から除外するための設定
+[tool.mypy]
+exclude = "^(venv|\\.venv|dist|build|.*\\.egg-info)/"

@@ -1,0 +1,12 @@
+# flake8は`flake8 .`を実行した時、このファイルを自動的に読み込む
+# Makefileのlintターゲットのコマンド自体は課題指定通り変更していません
+# venv/dist/build等、自分たちが書いていないコードを対象から除外するための設定
+
+[flake8]
+exclude =
+    venv,
+    .venv,
+    dist,
+    build,
+    *.egg-info,
+    __pycache__
