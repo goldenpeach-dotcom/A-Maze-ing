@@ -427,6 +427,11 @@ class MazeRenderer:
         )
 
     def _draw_search_cell(self, x: int, y: int) -> None:
+        """
+            経路を１セル描画する
+            引数：
+                x,y 描画する座標
+        """
         self._fill_marker_cell((x, y), self._palette()["path"])
 
     def _render_and_present(self) -> None:
@@ -470,6 +475,12 @@ class MazeRenderer:
         self._draw_menu()
 
     def _draw_menu(self) -> None:
+        """
+            画面下部のメニューエリアに、操作説明などのテキストを行単位で描画する。
+
+            全体のウィンドウ高さからメニュー領域（MENU_HEIGHT）を差し引いた位置を基準とし、
+            `MENU_LINES` に定義された各文字列を順に `mlx_string_put` を用いて描画。
+        """
         menu_top = self.win_height - MENU_HEIGHT
         for i, line in enumerate(MENU_LINES):
             y = menu_top + PADDING + i * LINE_HEIGHT
@@ -606,6 +617,12 @@ class MazeRenderer:
 
 
 def main() -> None:
+    """
+        迷路自動生成および MiniLibX を用いたビジュアライザの起動を行う。
+
+        30x30 の迷路オブジェクトを生成し、500x500 ピクセルのウィンドウで
+        描画システム（MazeRenderer）を初期化してメインループを実行します。
+    """
     from mazegen import MazeGenerator
 
     def make_maze() -> MazeGenerator:
