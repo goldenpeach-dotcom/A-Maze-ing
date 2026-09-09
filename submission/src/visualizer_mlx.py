@@ -284,6 +284,8 @@ def _prefix_sums(sizes: list[int]) -> list[int]:
 # 本体
 # --------------------------------------------------------------------------- #
 class MazeRenderer:
+    """ MLXで迷路を描画するクラス """
+
     def __init__(
             self, maze_gen_factory: Callable[[], Any],
             win_width: int = 800, win_height: int = 600,
