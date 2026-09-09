@@ -449,8 +449,12 @@ def main() -> None:
         mg.generator()
         return mg
 
-    renderer = MazeRenderer(make_maze, win_width=500, win_height=500)
-    renderer.run()
+    try:
+        renderer = MazeRenderer(make_maze, win_width=500, win_height=500)
+        renderer.run()
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+
 
 
 if __name__ == "__main__":
