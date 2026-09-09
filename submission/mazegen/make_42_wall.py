@@ -35,7 +35,7 @@ def get_protected_points(
 
 
 def build_pattern(start_x: int, start_y: int) -> list[Cell]:
-    """ 42 coordinates 
+    """ 42 coordinates
         Args: strart_x start_y 42ブロックの座標かたまり
         Return:42ブロックの座標かたまり
     """

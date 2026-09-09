@@ -22,6 +22,7 @@ class Config:
         output_file: 出力ファイル名。
         perfect: Trueなら一本道、Falseなら複数経路の盤面。
         seed: 乱数のシード(省略時はランダム)。
+        display: 表示方法(1:terminal, 2:GUI/mlx)。省略時は1。
     """
 
     width: int
@@ -31,6 +32,7 @@ class Config:
     output_file: str
     perfect: bool
     seed: int | None = None
+    display: int = 1
 
 
 def read_config_file(file_name: str) -> dict[str, str]:
@@ -171,6 +173,20 @@ def parse_config(file_name: str) -> Config:
             f"got {output_file!r}"
         )
 
+    display = 1
+    if "DISPLAY" in raw_data and raw_data["DISPLAY"]:
+        try:
+            display = int(raw_data["DISPLAY"])
+        except ValueError:
+            raise ConfigError(
+                f"DISPLAY must be 1 (terminal) or 2 (GUI), "
+                f"got {raw_data['DISPLAY']!r}"
+            )
+        if display not in (1, 2):
+            raise ConfigError(
+                f"DISPLAY must be 1 (terminal) or 2 (GUI), got {display}"
+            )
+
     return Config(
         width=width,
         height=height,
@@ -179,6 +195,7 @@ def parse_config(file_name: str) -> Config:
         output_file=output_file,
         perfect=perfect,
         seed=seed,
+        display=display,
     )
 
 

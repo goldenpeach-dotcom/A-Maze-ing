@@ -1,11 +1,14 @@
-
+# 課題文Chapter III.1の要求(flake8準拠、mypyでの型チェック)をいれた。
 
 flake8>=7.0
 mypy>=1.10
-mlx-2.2-py3-none-any.whl
 
-# mlx(MiniLibX)
-# MLX表示を実装する場合、このrequirements.txtとは別に、
-# 課題ページにある mlx-2.2.tgz を展開して
-# `pip install mlx-2.2-py3-none-any.whl` のように個別インストールする必要がある？
-# 課題文Chapter III.1の要求(flake8準拠、mypyでの型チェック)をいれた。
+# mlx(MiniLibX、DISPLAY=2のGUI表示に必要)、４２配布。
+# PyPIには無いので、このrequirements.txtには含めない。
+# 42イントラサイトからDLして解答してインストールしてください。
+# 中身(mlx/libmlx.so)がOS(Linuxディストリビューション)ごとに
+# コンパイルされたバイナリなので、使っている環境に合わせて
+# 解答したファイルを個別にインストールすること:
+#   Ubuntu: pip install 解答先フォルダ/ubuntu/mlx-2.2-py3-none-any.whl
+#   Fedora: pip install 解答先フォルダ/fedora/mlx-2.2-py3-none-any.whl
+# 動作確認: python3 -c "import mlx; print(mlx.__file__)"

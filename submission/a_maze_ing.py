@@ -46,6 +46,45 @@ def build_maze(config: Config) -> MazeGenerator:
     return maze
 
 
+def run_gui(config: Config) -> int:
+    """DISPLAY=2のとき、MLXウィンドウで迷路を表示する。
+
+    再生成・経路表示・色変更・終了のメニュー操作は
+    MazeRenderer自身がキー入力で受け付ける
+    (ターミナルのinput()メニューループとは独立している)。
+
+    Args:
+        config: parse_config()で読み込んだ設定内容。
+
+    Returns:
+        プロセスの終了コード(正常終了は0、エラー時は1)。
+    """
+    try:
+        from src.visualyzer_mlx import MazeRenderer
+    except ImportError as e:
+        print(
+            f"Error: MLX is not available ({e}). "
+            "Install mlx (see requirements.txt) or set DISPLAY=1.",
+            file=sys.stderr
+        )
+        return 1
+
+    def make_maze() -> MazeGenerator:
+        return build_maze(config)
+
+    CELL_PIXELS = 24  # 1マスあたりのピクセル数
+    win_width = min(1400, max(800, config.width * CELL_PIXELS))
+    win_height = min(1000, max(600, config.height * CELL_PIXELS)) + 100
+    try:
+        renderer = MazeRenderer(
+            make_maze, win_width=win_width, win_height=win_height)
+        renderer.run()
+    except (ValueError, FileOutputError, RuntimeError) as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+    return 0
+
+
 def main() -> int:
     """configファイルを読み込み、対話メニューのループを回す。
 
@@ -60,6 +99,9 @@ def main() -> int:
     except ConfigError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
+    if config.display == 2:
+        return run_gui(config)
+
     try:
         maze = build_maze(config)
         color_index: int = 0
