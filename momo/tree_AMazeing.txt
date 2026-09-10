@@ -1,0 +1,27 @@
+.
+├── LICENSE.md
+├── Makefile
+├── README.md
+├── a_maze_ing.py
+├── config.txt
+├── maze.txt
+├── mazegen
+│   ├── README.md
+│   ├── __init__.py
+│   ├── generator.py
+│   └── make_42_wall.py
+├── mlx_parts
+│   ├── fedora
+│   │   └── mlx-2.2-py3-none-any.whl
+│   ├── src
+│   │   └── mlx_CLXV-2.2.tgz
+│   └── ubuntu
+│       └── mlx-2.2-py3-none-any.whl
+├── pyproject.toml
+├── requirements.txt
+└── src
+    ├── __init__.py
+    ├── config_parse.py
+    ├── visualizer_mlx.py
+    ├── visualizer_stdout.py
+    └── write_maze_output.py
