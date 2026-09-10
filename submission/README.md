@@ -5,7 +5,11 @@
 ## Description(概要)
 
 プロジェクトの目的と概要
-迷路生成アルゴリズムを実装し、ターミナル(またはMLX)で表示するCLIツール
+迷路生成アルゴリズムを実装し、ターミナル(またはMLX)で表示するCLIツールの作成。
+迷路生成のモジュールを単一のクラスで実装し、属性を更新することによってクラスにアクセスして値を渡す方法をとっている。
+モジュール全体（コードとドキュメント）は、単一のファイルにまとめておき、pipでインストールできるようにした。
+モジュールを再利用できる形にする方法と、ソフトウェアライセンスや知的財産権について初めて学ぶ機会となった。
+
 
 ## Instructions(使い方)
 
@@ -47,17 +51,53 @@ make lint-strict
 config.txtの全キーと書式
 
 `WIDTH` `HEIGHT` `ENTRY` `EXIT` `OUTPUT_FILE` `PERFECT` は必須(mandatory)キー、
-`SEED` は課題文が例示している追加キー(additional key、任意)です。
+`SEED` `DISPLAY`は課題文が例示している追加キー(additional key、任意)です。
 
 ```
-WIDTH=21          # 迷路の幅(セル数)          [必須/mandatory]
-HEIGHT=20         # 迷路の高さ(セル数)        [必須/mandatory]
-ENTRY=0,0         # 入口座標(x,y)             [必須/mandatory]
-EXIT=20,19        # 出口座標(x,y)             [必須/mandatory]
-OUTPUT_FILE=maze.txt                          # [必須/mandatory]
-SEED=             # 空なら毎回ランダム、数値を指定すると再現可能  [任意/additional]
-PERFECT=false     # true: 完全迷路(ループ無し) / false: Pac-Man的な複数経路の盤面  [必須/mandatory]
+WIDTH=40
+HEIGHT=20
+ENTRY=0,0
+EXIT=29, 19
+OUTPUT_FILE=maze.txt
+PERFECT=false
+SEED=
+DISPLAY=1
 ```
+
+| キー | 説明 | 区分 |
+|---|---|---|
+| `WIDTH` | 迷路の幅(セル数) | 必須/mandatory |
+| `HEIGHT` | 迷路の高さ(セル数) | 必須/mandatory |
+| `ENTRY` | 入口座標(x,y) | 必須/mandatory |
+| `EXIT` | 出口座標(x,y) | 必須/mandatory |
+| `OUTPUT_FILE` | 出力ファイル名 | 必須/mandatory |
+| `PERFECT` | true: 完全迷路(ループ無し) / false: Pac-Man的な複数経路の盤面 | 必須/mandatory |
+| `SEED` | 空なら毎回ランダム、数値を指定すると再現可能 | 任意/additional |
+| `DISPLAY` | 1: ターミナル表示 / 2: MLX(GUI)表示。省略時は1 | 任意/additional |
+
+コメントは行頭が`#`の行のみ対応(値の後ろに続けて書くインラインコメントには対応していないので、
+上記のように別行にすること)。
+
+### `DISPLAY=2`(MLX/GUI表示)を使うための準備
+
+`mlx`パッケージはPyPIには無いため、`requirements.txt`とは別に手動でインストールする必要がある。
+`mlx_parts/`フォルダに、使っているOS(Linuxディストリビューション)ごとのビルド済みwheelが入っている。
+
+```bash
+# Ubuntuの場合
+pip install mlx_parts/ubuntu/mlx-2.2-py3-none-any.whl
+# Fedoraの場合
+pip install mlx_parts/fedora/mlx-2.2-py3-none-any.whl
+```
+
+インストール確認:
+
+```bash
+python3 -c "import mlx; print(mlx.__file__)"
+```
+
+これが通れば、`config.txt`で`DISPLAY=2`にしてから`make run`(または`python3 a_maze_ing.py config.txt`)を
+実行するとMLXウィンドウが開く。
 
 ## 迷路生成アルゴリズム
 
@@ -120,9 +160,10 @@ python関連のwebポータルサイトやキュレーションサイト
 
 ## Resources(参考資料)
 
-- [\Maxe Algorithms\](https://www.jamisbuck.org/mazes/)
+- [\Maze Algorithms\](https://www.jamisbuck.org/mazes/)
 - [\[再帰的バックトラッキングによる迷路生成\]](https://qiita.com/hextomino/items/d0bda1bf3bc62ec60f9c)
 - [\[グラフ理論　最短経路\]](https://qiita.com/taka256/items/a023a11efe17ab097433)
+- [MIT ライセンス](https://qiita.com/suwanishi77/items/82629633c16b086d1cd2)
 
 ### AIの利用について
 
