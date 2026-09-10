@@ -130,6 +130,7 @@ def print_42_shape(width: int, height: int, entry: Cell, goal: Cell) -> None:
 
 
 def main() -> None:
+    """ 動作確認用にサンプルの壁を表示する """
     print_42_shape(60, 15, (10, 12), (40, 4))
 
 

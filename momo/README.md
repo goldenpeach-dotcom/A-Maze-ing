@@ -9,10 +9,6 @@
 迷路生成のモジュールを単一のクラスで実装し、属性を更新することによってクラスにアクセスして値を渡す方法をとっている。
 モジュール全体（コードとドキュメント）は、単一のファイルにまとめておき、pipでインストールできるようにした。
 モジュールを再利用できる形にする方法と、ソフトウェアライセンスや知的財産権について初めて学ぶ機会となった。
-<<<<<<< HEAD
-
-=======
->>>>>>> e360cc94f0c97d48062a738f12cd69fc48acf9e4
 
 ## Instructions(使い方)
 
@@ -49,23 +45,21 @@ make lint
 make lint-strict
 ```
 
-
 ## Configファイルの構造(Configuration file format)
 
 config.txtの全キーと書式
 
 `WIDTH` `HEIGHT` `ENTRY` `EXIT` `OUTPUT_FILE` `PERFECT` は必須(mandatory)キー、
-
-`SEED` `DISPLAY`は課題文が例示している追加キー(additional key、任意)です。
+`SEED` `DISPLAY` は課題文が例示している追加キー(additional key、任意)です。
 
 ```
-WIDTH=40
+WIDTH=21
 HEIGHT=20
 ENTRY=0,0
-EXIT=29, 19
+EXIT=20,19
 OUTPUT_FILE=maze.txt
-PERFECT=false
 SEED=
+PERFECT=false
 DISPLAY=1
 ```
 
@@ -76,8 +70,8 @@ DISPLAY=1
 | `ENTRY` | 入口座標(x,y) | 必須/mandatory |
 | `EXIT` | 出口座標(x,y) | 必須/mandatory |
 | `OUTPUT_FILE` | 出力ファイル名 | 必須/mandatory |
-| `PERFECT` | true: 完全迷路(ループ無し) / false: Pac-Man的な複数経路の盤面 | 必須/mandatory |
 | `SEED` | 空なら毎回ランダム、数値を指定すると再現可能 | 任意/additional |
+| `PERFECT` | true: 完全迷路(ループ無し) / false: Pac-Man的な複数経路の盤面 | 必須/mandatory |
 | `DISPLAY` | 1: ターミナル表示 / 2: MLX(GUI)表示。省略時は1 | 任意/additional |
 
 コメントは行頭が`#`の行のみ対応(値の後ろに続けて書くインラインコメントには対応していないので、
@@ -104,23 +98,6 @@ python3 -c "import mlx; print(mlx.__file__)"
 これが通れば、`config.txt`で`DISPLAY=2`にしてから`make run`(または`python3 a_maze_ing.py config.txt`)を
 実行するとMLXウィンドウが開く。
 
-
-### 画面操作
-ターミナル表示のときのメニュー表示
-1. Re-generate a new maze　（迷路の再生成）
-2. Show / Hide the shortest path　（経路の表示・非表示）
-3. Rotate the wall colors　（色の変更）
-4. Quit　（終了）
-Choice? (1-4): 
-
-ウィンドウ表示のとき。
-1. Regenerate maze
-2. Toggle shortest path animation
-3. Change color palette
-4. Quit　（ESCキー押下か✖ボタンクリックでも終了する）
-
-
-
 ## 迷路生成アルゴリズム
 
 再帰的バックトラッカーを選択した。
@@ -129,26 +106,20 @@ Choice? (1-4):
 
 ## 経路探索アルゴリズム
 
-BFS（幅優先探索）を選択。
+BFS(幅優先検索)を選択した。
+この迷路はどの地点も隣り合った地点からは同じ距離であるため、今いる地点とつながっている地点をたどっていくと最短経路になるためです。
 
-この迷路では、隣接するマス同士の移動コストはすべて等しい（重みなし）。そのため、スタートから近い順に探索していくBFSを使えば、ゴールに到達した時点でそれが自動的に最短経路になる。
+（１）待ち行列(queue)、今いる地点(current)、各地点の訪問済みフラグ(visited)とどこから来た場所か(came_from)の４つの情報を持たせる。
 
-使用するデータ構造
+（２）スタート地点をqueueとcurrentに入れ、visitedをTrueにする。
 
-| 変数 |役割|
-|---|---|
-|'queue'|	次に探索する候補地点を先入先出（FIFO）で保持|
-|'visited'|	探索済みの地点の集合（二重登録防止）|
-|'came_from'|	各地点に「どこから来たか」を記録。ゴールから逆にたどって経路を復元するために使う|
+（３）currentから進めて一番近い地点でvisitedがFalseのものをqueueに入れ、それらのvisitedをTrue、came_fromを今いる地点currentとする。
 
-手順
-1. queueにスタート地点(entry)を入れ、visitedにも登録する。
-2. queueが空でない間、以下を繰り返す。
-3. queueの先頭を取り出しcurrentとする（FIFO）。
-4. currentがゴール(exit)なら探索終了。
-5. そうでなければ、currentから壁のない方向に隣接するマスのうち、まだvisitedに入っていないものをqueueに追加し、visitedに登録、came_fromにも「どこから来たか」を記録する。
-6. ゴールに到達せずqueueが空になった場合は経路なし（None）を返す。
-7. ゴールに到達した場合、current（＝exit）からcame_fromを逆にたどりながらリストに追加していき、スタート地点(entry)に着いたら終了。できたリストを逆順にすると、それが最短経路になる。
+（４）queueの一番前（先入先出）を取り出しcurrentへ。
+
+（５）(3)(4)をゴールがqueueに入るまで繰り返す。
+
+（６）currentをリスト(path)に入れ、came_from[current]がスタート地点に来るまで、pathに足していき、逆順にすればそれが最短経路となる。
 
 
 ## 再利用可能な部分について
@@ -189,22 +160,14 @@ maze.shortest_path() -> list[(x, y)] | None — 入口から出口までの最�
 path = maze.shortest_path()
 
 
-### 経路のアニメーションについて
+### 迷路生成中のアニメーションについて
 
-迷路の壁は初回に一括表示する。一方、経路はmlx_loop_hookで登録した_on_loop関数の中で1マスずつ描画することで経路が伸びていくアニメーションを実現している。
-
-- _on_loopの処理内容
-1. フレーム間隔の調整：_loop_countでカウントし、１０フレーム（0.1～0.2秒）ごとに一回だけ処理を進める。MiniLibXのループはそのままだと高速に回りすぎるため、人の目に見える速さに落としている。
-2. 迷路の初回描画:_initialized_rendrerフラグを見て、まだ描画していなければ_render_maze()を一度だけ呼び、迷路の壁を描画する。
-3. 経路の描画:show_pathが有効な場合、探索済みの経路座標リストからsearch_indexが指す１マスだけを_draw_serach_cellで描画し、search_indexをインクリメントする。全描画マス済み以降は、毎回全経路を描画しなおして表示を維持する。
-4. 画面更新:mlx_clear_windowでクリアした後、画像バッファ(img_ptr)をmlx_put_image_to_windowでウィンドウに転送し、_draw_menu()ｓｗメニュー帯を描画する。
-
-プロジェクトページにあるMiniLibx(mlx)をインポートして利用した。
+プロジェクトページにあるMiniLibx(mlx)をインポートして、迷路と経路をウィンドウを開いて描画した。
 Mlx()のインスタンスを作りmlx_init()を実行すると、様々なmlx_*関数を呼ぶことができる。
 mlx_loop関数を用いると入力待ち状態となる。
 キー入力に応じて、迷路の再生成や経路の表示、色の切り替えをできるようにした。
 
-```Python
+```
 import mlx
 m = mlx.Mlx()
 mlx_ptr = m.mlx_init() <- 最初に一度実行する。
@@ -273,20 +236,21 @@ python関連のwebポータルサイトやキュレーションサイト
 
 ## Resources(参考資料)
 
-- [\Maze Algorithms\](https://www.jamisbuck.org/mazes/)
+- [\Maxe Algorithms\](https://www.jamisbuck.org/mazes/)
 - [\[再帰的バックトラッキングによる迷路生成\]](https://qiita.com/hextomino/items/d0bda1bf3bc62ec60f9c)
 - [\[グラフ理論　最短経路\]](https://qiita.com/taka256/items/a023a11efe17ab097433)
-- [MIT ライセンス](https://qiita.com/suwanishi77/items/82629633c16b086d1cd2)
 - [\[BFS 幅優先検索\]](https://qiita.com/drken/items/996d80bcae64649a6580)
 
 ### AIの利用について
 
-kohira
-迷路生成アルゴリズム(ランダム化再帰的バックトラッカー、ループ追加、
+[TODO: 課題文Chapter VII必須(mandatory)項目。どのタスクに、プロジェクトのどの部分でAIを
+使ったかを具体的に書く。例:
+「迷路生成アルゴリズム(ランダム化再帰的バックトラッカー、ループ追加、
 3x3空き部屋の回避判定)の設計・デバッグについて、Claude Codeとの対話を通じて
 段階的に理解しながら実装した。ターミナル表示のANSIエスケープコード周りの
-実装補助、エラーハンドリングの網羅的なテスト(境界値・異常系)の洗い出しにも使用した。
+実装補助、エラーハンドリングの網羅的なテスト(境界値・異常系)の洗い出しにも使用した。」
+のように、具体的な範囲を明記すること]
 
 mkaneko
-経路探索実装方法調査やconfig.txtのパーサーのテストケース作成、デバッグの補助、
-GUI描画で、画面表示の微調整の補助にclaude, copilotを利用した。
+経路探索実装方法（取り組むべき順序など）やテストケース作成、デバッグの補助に利用。
+GUI描画では、画面表示の微調整について助言してもらった。

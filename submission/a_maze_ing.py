@@ -60,7 +60,7 @@ def run_gui(config: Config) -> int:
         プロセスの終了コード(正常終了は0、エラー時は1)。
     """
     try:
-        from src.visualyzer_mlx import MazeRenderer
+        from src.visualizer_mlx import MazeRenderer
     except ImportError as e:
         print(
             f"Error: MLX is not available ({e}). "

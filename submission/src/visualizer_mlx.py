@@ -22,6 +22,8 @@ from typing import Any, Callable, Literal
 
 from mlx import Mlx
 
+from .write_maze_output import FileOutputError
+
 sys.argv = [sys.argv[0]]
 Cell = tuple[int, int]
 Palette = dict[str, int]
@@ -282,6 +284,8 @@ def _prefix_sums(sizes: list[int]) -> list[int]:
 # 本体
 # --------------------------------------------------------------------------- #
 class MazeRenderer:
+    """ MLXで迷路を描画するクラス """
+
     def __init__(
             self, maze_gen_factory: Callable[[], Any],
             win_width: int = 800, win_height: int = 600,
@@ -544,8 +548,11 @@ class MazeRenderer:
             Returns：成功したら０
         """
         if keycode == KEY_1:
-            self._load_new_maze()
-            self._initialized_render = False
+            try:
+                self._load_new_maze()
+                self._initialized_render = False
+            except (ValueError, FileOutputError) as e:
+                print(f"Error: {e}", file=sys.stderr)
         elif keycode == KEY_2:
             self.show_path = not self.show_path
             self.search_index = 0
