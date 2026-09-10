@@ -45,6 +45,7 @@ make lint
 make lint-strict
 ```
 
+
 ## Configファイルの構造(Configuration file format)
 
 config.txtの全キーと書式
@@ -98,6 +99,23 @@ python3 -c "import mlx; print(mlx.__file__)"
 これが通れば、`config.txt`で`DISPLAY=2`にしてから`make run`(または`python3 a_maze_ing.py config.txt`)を
 実行するとMLXウィンドウが開く。
 
+
+### 画面操作
+ターミナル表示のときのメニュー表示
+1. Re-generate a new maze　（迷路の再生成）
+2. Show / Hide the shortest path　（経路の表示・非表示）
+3. Rotate the wall colors　（色の変更）
+4. Quit　（終了）
+Choice? (1-4): 
+
+ウィンドウ表示のとき。
+1. Regenerate maze
+2. Toggle shortest path animation
+3. Change color palette
+4. Quit　（ESCキー押下か✖ボタンクリックでも終了する）
+
+
+
 ## 迷路生成アルゴリズム
 
 再帰的バックトラッカーを選択した。
@@ -106,20 +124,26 @@ python3 -c "import mlx; print(mlx.__file__)"
 
 ## 経路探索アルゴリズム
 
-BFS(幅優先検索)を選択した。
-この迷路はどの地点も隣り合った地点からは同じ距離であるため、今いる地点とつながっている地点をたどっていくと最短経路になるためです。
+BFS（幅優先探索）を選択。
 
-（１）待ち行列(queue)、今いる地点(current)、各地点の訪問済みフラグ(visited)とどこから来た場所か(came_from)の４つの情報を持たせる。
+この迷路では、隣接するマス同士の移動コストはすべて等しい（重みなし）。そのため、スタートから近い順に探索していくBFSを使えば、ゴールに到達した時点でそれが自動的に最短経路になる。
 
-（２）スタート地点をqueueとcurrentに入れ、visitedをTrueにする。
+使用するデータ構造
 
-（３）currentから進めて一番近い地点でvisitedがFalseのものをqueueに入れ、それらのvisitedをTrue、came_fromを今いる地点currentとする。
+| 変数 |役割|
+|---|---|
+|'queue'|	次に探索する候補地点を先入先出（FIFO）で保持|
+|'visited'|	探索済みの地点の集合（二重登録防止）|
+|'came_from'|	各地点に「どこから来たか」を記録。ゴールから逆にたどって経路を復元するために使う|
 
-（４）queueの一番前（先入先出）を取り出しcurrentへ。
-
-（５）(3)(4)をゴールがqueueに入るまで繰り返す。
-
-（６）currentをリスト(path)に入れ、came_from[current]がスタート地点に来るまで、pathに足していき、逆順にすればそれが最短経路となる。
+手順
+1. queueにスタート地点(entry)を入れ、visitedにも登録する。
+2. queueが空でない間、以下を繰り返す。
+3. queueの先頭を取り出しcurrentとする（FIFO）。
+4. currentがゴール(exit)なら探索終了。
+5. そうでなければ、currentから壁のない方向に隣接するマスのうち、まだvisitedに入っていないものをqueueに追加し、visitedに登録、came_fromにも「どこから来たか」を記録する。
+6. ゴールに到達せずqueueが空になった場合は経路なし（None）を返す。
+7. ゴールに到達した場合、current（＝exit）からcame_fromを逆にたどりながらリストに追加していき、スタート地点(entry)に着いたら終了。できたリストを逆順にすると、それが最短経路になる。
 
 
 ## 再利用可能な部分について
@@ -166,16 +190,16 @@ path = maze.shortest_path()
 
 - _on_loopの処理内容
 1. フレーム間隔の調整：_loop_countでカウントし、１０フレーム（0.1～0.2秒）ごとに一回だけ処理を進める。MiniLibXのループはそのままだと高速に回りすぎるため、人の目に見える速さに落としている。
-2. 迷路の初回描画:_initialized_rendrerフラグを見て、まだ描画していなければ_render_maze()を一度だけ予備、迷路の壁を描画する。
-3. 経路の描画:show_pathが有効な場合、探索済みの経路座標リストからsearch_indexが指す１マスだけを_draw_serach_cellで描画し、search_indexをインクリメントする。全ます描画済み以降は、毎回全経路を描画しなおして表示を維持する。
+2. 迷路の初回描画:_initialized_rendrerフラグを見て、まだ描画していなければ_render_maze()を一度だけ呼び、迷路の壁を描画する。
+3. 経路の描画:show_pathが有効な場合、探索済みの経路座標リストからsearch_indexが指す１マスだけを_draw_serach_cellで描画し、search_indexをインクリメントする。全描画マス済み以降は、毎回全経路を描画しなおして表示を維持する。
 4. 画面更新:mlx_clear_windowでクリアした後、画像バッファ(img_ptr)をmlx_put_image_to_windowでウィンドウに転送し、_draw_menu()ｓｗメニュー帯を描画する。
 
-プロジェクトページにあるMiniLibx(mlx)をインポートして、迷路と経路をウィンドウを開いて描画した。
+プロジェクトページにあるMiniLibx(mlx)をインポートして利用した。
 Mlx()のインスタンスを作りmlx_init()を実行すると、様々なmlx_*関数を呼ぶことができる。
 mlx_loop関数を用いると入力待ち状態となる。
 キー入力に応じて、迷路の再生成や経路の表示、色の切り替えをできるようにした。
 
-```
+```Python
 import mlx
 m = mlx.Mlx()
 mlx_ptr = m.mlx_init() <- 最初に一度実行する。
@@ -251,14 +275,12 @@ python関連のwebポータルサイトやキュレーションサイト
 
 ### AIの利用について
 
-[TODO: 課題文Chapter VII必須(mandatory)項目。どのタスクに、プロジェクトのどの部分でAIを
-使ったかを具体的に書く。例:
-「迷路生成アルゴリズム(ランダム化再帰的バックトラッカー、ループ追加、
+kohira
+迷路生成アルゴリズム(ランダム化再帰的バックトラッカー、ループ追加、
 3x3空き部屋の回避判定)の設計・デバッグについて、Claude Codeとの対話を通じて
 段階的に理解しながら実装した。ターミナル表示のANSIエスケープコード周りの
-実装補助、エラーハンドリングの網羅的なテスト(境界値・異常系)の洗い出しにも使用した。」
-のように、具体的な範囲を明記すること]
+実装補助、エラーハンドリングの網羅的なテスト(境界値・異常系)の洗い出しにも使用した。
 
 mkaneko
-経路探索実装方法（取り組むべき順序など）やテストケース作成、デバッグの補助に利用。
-GUI描画では、画面表示の微調整について助言してもらった。
+経路探索実装方法調査やconfig.txtのパーサーのテストケース作成、デバッグの補助、
+GUI描画で、画面表示の微調整の補助にclaude, copilotを利用した。
