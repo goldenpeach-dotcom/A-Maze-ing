@@ -1,7 +1,10 @@
+# tomlはpyprojectでのpythonのパッケージ設定を集約して書く　
+# パッケージをビルドするツールを伝える
 [build-system]
 requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
+# プロジェクトのメタデータ
 [project]
 name = "mazegen"
 version = "1.0.0"
@@ -10,16 +13,18 @@ readme = "mazegen/README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
-    { name = "kohira" },
-    { name = "mkaneko" },
+    { name = "kohira" , email = "kohira@student.42tokyo.jp"},
+    { name = "mkaneko" , email = "mkaneko@student.42tokyo.jp"},
 ]
 
+# mazegenフォルダをカレントディレクトリから探してください指定
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["mazegen*"]
 
-# mypyは`mypy .`実行時にpyproject.tomlを自動的に読み込む
-# Makefileのlintターゲットのコマンドは課題の指定通り変更なし。
-# venv/dist/build等は、自分たちが書いていないコードを対象から除外するための設定
+# mypyは`mypy .`実行時にpyproject.tomlを自動的に読み込むが
+# Makefileのlintターゲットのコマンドは課題の指定通り変更していません。
+# 以下venv/dist/build等は、自分たちが書いていないコードを対象から除外するための設定です
+# 必要ないかもです
 [tool.mypy]
 exclude = "^(venv|\\.venv|dist|build|.*\\.egg-info)/"

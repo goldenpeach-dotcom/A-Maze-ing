@@ -3,12 +3,13 @@
 flake8>=7.0
 mypy>=1.10
 
-# mlx(MiniLibX、DISPLAY=2のGUI表示に必要)、４２配布。
-# PyPIには無いので、このrequirements.txtには含めない。
-# 42イントラサイトからDLして解答してインストールしてください。
+# mazegenパッケージには不要ですが、課題a-maze-ingでのGUI画面出力には
+# mlx(MiniLibX、DISPLAY=2のGUI表示に必要、42から配布)が必要になります。
+# PyPIには無いので、このrequirements.txtには含めません。
+# 42イントラサイトからDLして解凍してインストールしてください。
 # 中身(mlx/libmlx.so)がOS(Linuxディストリビューション)ごとに
 # コンパイルされたバイナリなので、使っている環境に合わせて
-# 解答したファイルを個別にインストールすること:
-#   Ubuntu: pip install 解答先フォルダ/ubuntu/mlx-2.2-py3-none-any.whl
-#   Fedora: pip install 解答先フォルダ/fedora/mlx-2.2-py3-none-any.whl
+# 解凍したファイルを個別にインストールすること:
+#   Ubuntu: pip install 解凍先フォルダ/ubuntu/mlx-2.2-py3-none-any.whl
+#   Fedora: pip install 解凍先フォルダ/fedora/mlx-2.2-py3-none-any.whl
 # 動作確認: python3 -c "import mlx; print(mlx.__file__)"

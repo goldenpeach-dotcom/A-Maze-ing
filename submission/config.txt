@@ -1,10 +1,10 @@
 WIDTH=40
 HEIGHT=20
-#
 ENTRY=0,0
 EXIT=29, 19
 OUTPUT_FILE=maze.txt
-SEED=
 PERFECT=false
-DISPLAY=2
+# ---optional---
+SEED=
+DISPLAY=1
 # 1:terminal, 2:GUI
