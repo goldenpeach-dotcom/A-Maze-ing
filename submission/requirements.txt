@@ -8,7 +8,7 @@ mypy>=1.10
 # PyPIには無いので、このrequirements.txtには含めません。
 # 42イントラサイトからDLして解凍してインストールしてください。
 # 中身(mlx/libmlx.so)がOS(Linuxディストリビューション)ごとに
-# コンパイルされたバイナリなので、使っている環境に合わせて
+# コンパイルされたバイナリなので、使っているOS環境に合わせて
 # 解凍したファイルを個別にインストールすること:
 #   Ubuntu: pip install 解凍先フォルダ/ubuntu/mlx-2.2-py3-none-any.whl
 #   Fedora: pip install 解凍先フォルダ/fedora/mlx-2.2-py3-none-any.whl
