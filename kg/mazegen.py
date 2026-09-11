@@ -25,7 +25,7 @@ def _protected_cells(
 ) -> set[Cell]:
     """
         "42"パターンが絶対に置いてはいけないセルを求める
-        引数：
+        Args：
             width 迷路の幅
             height 迷路の高さ
             entry 入口の座標
@@ -124,8 +124,13 @@ class MazeGenerator:
 
     def _add_loops(self) -> None:
         """
+<<<<<<< Updated upstream
             perfectがfalseの時に必要となるloopを作る,行き止まり解消
             引数：
+=======
+            perfectがfalseの時に必要となるloopを作る
+            Args：
+>>>>>>> Stashed changes
                 クラスattribute
             返し値:
                 なし
@@ -154,8 +159,13 @@ class MazeGenerator:
         self, cell: Cell, bit: int, next_cell: Cell
     ) -> bool:
         """"3X3"空白マスになるかチェックする
+<<<<<<< Updated upstream
             引数：
                 cuurent_cell 今いる座標
+=======
+            Args：
+                cell 今いる座標
+>>>>>>> Stashed changes
                 bit 進む方向（東西南北）
                 next_cell 壁を開ける先のセル
             返し値：

@@ -2,7 +2,7 @@ import sys
 from dataclasses import dataclass
 
 #: A maze bigger than this is impractical to render or hold in memory.
-MAX_DIMENSION = 1000
+MAX_DIMENSION = 100
 QUOTE_CHARS = {'"', "'"}
 
 
