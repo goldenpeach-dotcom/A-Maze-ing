@@ -339,7 +339,7 @@ class MazeRenderer:
         self.row_y: list[int] = []
         self.maze_pixel_w = 0
         self.maze_pixel_h = 0
-        self.pattern_omitted_reason: str | None + None
+        self.pattern_omitted_reason: str | None = None
         self._load_new_maze()
 
     def _load_new_maze(self) -> None:
