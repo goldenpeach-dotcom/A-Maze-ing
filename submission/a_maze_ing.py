@@ -70,11 +70,14 @@ def run_gui(config: Config) -> int:
         return 1
 
     def make_maze() -> MazeGenerator:
-        return build_maze(config)
+        maze = build_maze(config)
+        if maze.pattern_omitted_reason:
+            print(f"Note: {maze.pattern_omitted_reason}")
+        return maze
 
     CELL_PIXELS = 24  # 1マスあたりのピクセル数
     win_width = min(1400, max(800, config.width * CELL_PIXELS))
-    win_height = min(1000, max(600, config.height * CELL_PIXELS)) + 100
+    win_height = min(1000, max(600, config.height * CELL_PIXELS)) + 160
     try:
         renderer = MazeRenderer(
             make_maze, win_width=win_width, win_height=win_height)
@@ -117,7 +120,11 @@ def main() -> int:
             if maze.pattern_omitted_reason:
                 print(f"Note: {maze.pattern_omitted_reason}")
             refresh = False
-        text = input(MENU_TEXT)
+        try:
+            text = input(MENU_TEXT)
+        except (EOFError):
+            print("EOF Quit")
+            break
         try:
             instruction = int(text)
         except ValueError:
@@ -144,4 +151,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        print()
+        sys.exit(130)

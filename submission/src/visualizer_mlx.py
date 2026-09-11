@@ -47,7 +47,7 @@ PALETTES: list[Palette] = [
      "entry": 0xFF293681, "exit": 0xFFFF5C5C},
 ]
 
-MENU_HEIGHT = 100
+MENU_HEIGHT = 160
 MENU_LINES = [
     "1: Regenerate maze",
     "2: Toggle shortest path animation",
@@ -339,6 +339,7 @@ class MazeRenderer:
         self.row_y: list[int] = []
         self.maze_pixel_w = 0
         self.maze_pixel_h = 0
+        self.pattern_omitted_reason: str | None + None
         self._load_new_maze()
 
     def _load_new_maze(self) -> None:
@@ -354,7 +355,7 @@ class MazeRenderer:
         self.search_path = mg.shortest_path()
         self.search_index = 0
         self.show_path = False
-
+        self.pattern_omitted_reason = mg.pattern_omitted_reason
         maze_area_h = self.win_height - MENU_HEIGHT
         self.col_widths = _distribute(self.win_width, self.maze_w)
         self.row_heights = _distribute(maze_area_h, self.maze_h)
@@ -491,6 +492,13 @@ class MazeRenderer:
             self.mlx.mlx_string_put(
                 self.mlx_ptr, self.win_ptr, PADDING, y, 0xFFFFFFFF, line
             )
+        if self.pattern_omitted_reason:
+            y = menu_top + PADDING + len(MENU_LINES) * LINE_HEIGHT
+            self.mlx.mlx_string_put(
+                            self.mlx_ptr, self.win_ptr, PADDING, y,
+                            0xFFFFFFFF,
+                            f"Note: {self.pattern_omitted_reason}"
+                        )
 
     # -- ループ / イベント ------------------------------------------------ #
     def _on_loop(self, _param: int) -> int:
