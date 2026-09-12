@@ -532,7 +532,7 @@ class MazeRenderer:
         elif self.show_path:
             for (x, y) in self.search_path:
                 self._draw_search_cell(x, y)
-        
+
         if needs_redraw:
             self.mlx.mlx_clear_window(self.mlx_ptr, self.win_ptr)
             self.mlx.mlx_put_image_to_window(
@@ -634,7 +634,6 @@ class MazeRenderer:
 
         if self.mlx.mlx_loop(self.mlx_ptr) != 0:
             raise RuntimeError("MLX loop failed")
-
 
         if hasattr(self, 'img_ptr') and self.img_ptr:
             self.mlx.mlx_destroy_image(self.mlx_ptr, self.img_ptr)
