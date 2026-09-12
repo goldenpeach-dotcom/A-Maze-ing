@@ -509,6 +509,8 @@ class MazeRenderer:
                 _param:MiniLibXのルールブック仕様に必要な引数（関数では未使用）
         """
 
+        needs_redraw = False
+
         if not hasattr(self, '_loop_count'):
             self._loop_count = 0
         if self._loop_count < 10:  # 10フレーム（約0.1〜0.2秒）待つ
@@ -519,20 +521,23 @@ class MazeRenderer:
                 or not self._initialized_render):
             self._render_maze()
             self._initialized_render = True
+            needs_redraw = True
 
         # アニメーション処理（元のロジックを維持）
         if self.show_path and self.search_index < len(self.search_path):
             x, y = self.search_path[self.search_index]
             self._draw_search_cell(x, y)
             self.search_index += 1
+            needs_redraw = True
         elif self.show_path:
             for (x, y) in self.search_path:
                 self._draw_search_cell(x, y)
-
-        self.mlx.mlx_clear_window(self.mlx_ptr, self.win_ptr)
-        self.mlx.mlx_put_image_to_window(
-            self.mlx_ptr, self.win_ptr, self.img_ptr, 0, 0
-        )
+        
+        if needs_redraw:
+            self.mlx.mlx_clear_window(self.mlx_ptr, self.win_ptr)
+            self.mlx.mlx_put_image_to_window(
+                self.mlx_ptr, self.win_ptr, self.img_ptr, 0, 0
+            )
 
         self._draw_menu()
         return 0
@@ -629,6 +634,12 @@ class MazeRenderer:
 
         if self.mlx.mlx_loop(self.mlx_ptr) != 0:
             raise RuntimeError("MLX loop failed")
+
+
+        if hasattr(self, 'img_ptr') and self.img_ptr:
+            self.mlx.mlx_destroy_image(self.mlx_ptr, self.img_ptr)
+
+        self.mlx.mlx_destroy_window(self.mlx_ptr, self.win_ptr)
 
 
 def main() -> None:
