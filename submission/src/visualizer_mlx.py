@@ -24,6 +24,8 @@ from mlx import Mlx
 
 from .write_maze_output import FileOutputError
 
+import signal
+
 sys.argv = [sys.argv[0]]
 Cell = tuple[int, int]
 Palette = dict[str, int]
@@ -508,8 +510,6 @@ class MazeRenderer:
             Args:
                 _param:MiniLibXのルールブック仕様に必要な引数（関数では未使用）
         """
-
-
         if not hasattr(self, '_loop_count'):
             self._loop_count = 0
         if self._loop_count < 10:  # 10フレーム（約0.1〜0.2秒）待つ
@@ -530,7 +530,7 @@ class MazeRenderer:
             for (x, y) in self.search_path:
                 self._draw_search_cell(x, y)
 
-        self.mlx.mlx_clear_window(self.mlx_ptr, self.win_ptr)
+        # self.mlx.mlx_clear_window(self.mlx_ptr, self.win_ptr)
         self.mlx.mlx_put_image_to_window(
             self.mlx_ptr, self.win_ptr, self.img_ptr, 0, 0
         )
@@ -588,6 +588,9 @@ class MazeRenderer:
         self.mlx.mlx_loop_exit(self.mlx_ptr)
         return 0
 
+    def _on_sigint(self, signum: int, frame: Any) -> None:
+        self.mlx.mlx_loop_exit(self.mlx_ptr)
+
     def run(self) -> None:
         """
             プログラムのメインループを開始し、各種イベントコールバックを登録する。
@@ -600,6 +603,8 @@ class MazeRenderer:
             Raises:
                 RuntimeError: 各種フック関数の登録、またはメインループの起動に失敗した場合。
         """
+
+        signal.signal(signal.SIGINT, self._on_sigint)
 
         self._callbacks.append(self._on_close)
         self._callbacks.append(self._on_client_message)

@@ -6,5 +6,5 @@ OUTPUT_FILE=maze.txt
 PERFECT=false
 # ---optional---
 SEED=
-DISPLAY=2
+DISPLAY=1
 # 1:terminal, 2:GUI
